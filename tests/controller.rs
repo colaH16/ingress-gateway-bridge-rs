@@ -99,3 +99,19 @@ fn configuration_rejects_ambiguous_parents() {
     b.parent_refs.push(p);
     assert!(c.validate().is_err());
 }
+
+#[test]
+fn invalid_namespace_selectors_do_not_authorize_routes() {
+    for selector in [
+        json!({"matchExpressions":[{"key":"team","operator":"NotIn","values":[]}]}),
+        json!({"matchExpressions":[{"key":"team","operator":"DoesNotExist","values":["x"]}]}),
+        json!({"matchLabels":{"invalid key":"x"}}),
+    ] {
+        let (i, c, mut s) = fixture();
+        s.namespaces =
+            vec![json!({"metadata":{"name":namespace(&i),"labels":{"invalid key":"x"}}})];
+        s.gateways[0]["spec"]["listeners"][0]["allowedRoutes"] =
+            json!({"namespaces":{"from":"Selector","selector":selector}});
+        assert!(plan(&i, &c, &s).is_err());
+    }
+}

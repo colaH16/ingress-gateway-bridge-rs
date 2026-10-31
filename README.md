@@ -26,6 +26,8 @@ Go `ingress-gateway-bridge`의 변환 코어를 Rust로 옮기는 비교 학습 
 
 컨트롤러는 사용자 HTTP 트래픽을 중계하지 않습니다. 이 수치는 변환 작업의 비용이며 서비스 응답 시간이나 Kubernetes reconcile 전체 시간을 뜻하지 않습니다. Go/Rust 출력 비교, 원시 결과·범위·GC 횟수·재현 코드는 [상세 성능 기록](docs/performance.md)에 있습니다.
 
+[Claude 독립 코드 검토와 수정 기록](docs/CODE_REVIEW.md)도 공개합니다.
+
 ## 실행
 
 Rust stable(Cargo 포함)을 설치한 환경에서:

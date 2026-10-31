@@ -95,10 +95,43 @@ pub fn owns(route: &Value, ingress: &Value, controller: &str) -> bool {
         && route["metadata"]["annotations"][format!("{ANNOTATION_PREFIX}controller")] == controller
         && namespace(route) == namespace(ingress)
 }
+fn label_name(value: &str, allow_empty: bool) -> bool {
+    if value.is_empty() {
+        return allow_empty;
+    }
+    value.len() <= 63
+        && value.as_bytes()[0].is_ascii_alphanumeric()
+        && value.as_bytes()[value.len() - 1].is_ascii_alphanumeric()
+        && value
+            .bytes()
+            .all(|b| b.is_ascii_alphanumeric() || b"-_.".contains(&b))
+}
+fn label_key(key: &str) -> bool {
+    match key.split_once('/') {
+        None => label_name(key, false),
+        Some((prefix, name)) => {
+            !prefix.is_empty()
+                && prefix.len() <= 253
+                && prefix.split('.').all(|part| {
+                    !part.is_empty()
+                        && part.len() <= 63
+                        && part.as_bytes()[0].is_ascii_alphanumeric()
+                        && part.as_bytes()[part.len() - 1].is_ascii_alphanumeric()
+                        && part
+                            .bytes()
+                            .all(|b| b.is_ascii_lowercase() || b.is_ascii_digit() || b == b'-')
+                })
+                && label_name(name, false)
+        }
+    }
+}
 fn selector_matches(selector: &Value, labels: &Value) -> bool {
     if let Some(map) = selector["matchLabels"].as_object() {
         for (k, v) in map {
-            if labels.get(k) != Some(v) {
+            if !label_key(k)
+                || !v.as_str().is_some_and(|v| label_name(v, true))
+                || labels.get(k) != Some(v)
+            {
                 return false;
             }
         }
@@ -108,8 +141,23 @@ fn selector_matches(selector: &Value, labels: &Value) -> bool {
             let Some(key) = e["key"].as_str() else {
                 return false;
             };
+            if !label_key(key) {
+                return false;
+            }
             let value = labels.get(key);
             let values = e["values"].as_array();
+            let valid_values = values.is_some_and(|v| {
+                !v.is_empty()
+                    && v.iter()
+                        .all(|v| v.as_str().is_some_and(|s| label_name(s, true)))
+            });
+            match e["operator"].as_str() {
+                Some("In" | "NotIn") if !valid_values => return false,
+                Some("Exists" | "DoesNotExist") if values.is_some_and(|v| !v.is_empty()) => {
+                    return false;
+                }
+                _ => (),
+            }
             let contains = value.is_some_and(|v| values.is_some_and(|a| a.contains(v)));
             let matched = match e["operator"].as_str() {
                 Some("In") => contains,
@@ -418,6 +466,14 @@ pub mod runtime {
             .context("Kubernetes operation exceeded 45 seconds")?
     }
     pub async fn run(cfg: Config, dry_run: bool, once: bool, health: &str) -> Result<()> {
+        // Keep signal receivers alive during snapshots and writes, not only while idle.
+        let mut term = tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())?;
+        let mut interrupt =
+            tokio::signal::unix::signal(tokio::signal::unix::SignalKind::interrupt())?;
+        let shutdown = async move {
+            tokio::select! { _ = term.recv() => (), _ = interrupt.recv() => () }
+        };
+        tokio::pin!(shutdown);
         let mut kc = kube::Config::infer().await?;
         kc.connect_timeout = Some(Duration::from_secs(10));
         // kube watcher requests run for up to 290s; ordinary operations have
@@ -436,9 +492,8 @@ pub mod runtime {
                 loop { let (mut socket,_)=listener.accept().await?; let last=last.clone(); tokio::spawn(async move {
                     let mut bytes=[0;1024]; let n=tokio::time::timeout(Duration::from_secs(2),socket.read(&mut bytes)).await.ok().and_then(|v|v.ok()).unwrap_or(0);
                     let request=String::from_utf8_lossy(&bytes[..n]); let tick=last.load(Ordering::Relaxed);
-                    let live=tick>0 && start.elapsed().as_secs()+1-tick<180;
                     let ready=tick>0 && start.elapsed().as_secs()+1-tick<90;
-                    let status=if request.starts_with("GET /healthz ") { if live || (tick==0 && start.elapsed().as_secs()<180) {"200 OK"} else {"503 Service Unavailable"} } else if request.starts_with("GET /readyz ") { if ready {"200 OK"} else {"503 Service Unavailable"} } else {"404 Not Found"};
+                    let status=if request.starts_with("GET /healthz ") { "200 OK" } else if request.starts_with("GET /readyz ") { if ready {"200 OK"} else {"503 Service Unavailable"} } else {"404 Not Found"};
                     let _=socket.write_all(format!("HTTP/1.1 {status}\r\nContent-Length: 0\r\nConnection: close\r\n\r\n").as_bytes()).await;
                 }); }
                 #[allow(unreachable_code)] Ok::<(),anyhow::Error>(())
@@ -460,10 +515,16 @@ pub mod runtime {
             }
         }
         let mut delay = Duration::from_secs(1);
-        loop {
+        'resync: loop {
+            let mut snapshot_failed = false;
             let mut changes = 0;
             let mut errors = 0;
-            match bounded(snapshot(client.clone())).await {
+            let snapshot_result = tokio::select! {
+                _ = &mut shutdown => break,
+                task = tasks.join_next(), if !once => bail!("background task stopped: {task:?}"),
+                result = bounded(snapshot(client.clone())) => result,
+            };
+            match snapshot_result {
                 Ok(s) => {
                     for ingress in &s.ingresses {
                         match plan(ingress, &cfg, &s) {
@@ -478,12 +539,16 @@ pub mod runtime {
                                         "HTTPRoute plan"
                                     );
                                 }
-                                if !dry_run
-                                    && let Err(e) =
-                                        bounded(apply(client.clone(), ingress, &actions)).await
-                                {
-                                    errors += 1;
-                                    tracing::error!(namespace=namespace(ingress),ingress=name(ingress),error=%e,"apply failed; retry scheduled");
+                                if !dry_run {
+                                    let applied = tokio::select! {
+                                        _ = &mut shutdown => break 'resync,
+                                        task = tasks.join_next(), if !once => bail!("background task stopped: {task:?}"),
+                                        result = bounded(apply(client.clone(), ingress, &actions)) => result,
+                                    };
+                                    if let Err(e) = applied {
+                                        errors += 1;
+                                        tracing::error!(namespace=namespace(ingress),ingress=name(ingress),error=%e,"apply failed; retry scheduled");
+                                    }
                                 }
                             }
                             Err(e) => {
@@ -510,32 +575,23 @@ pub mod runtime {
                     if once {
                         return Err(e);
                     }
-                    errors += 1;
+                    snapshot_failed = true;
                     tracing::error!(error=%e,"snapshot failed; preserving routes");
                 }
             }
-            delay = if errors > 0 {
+            delay = if snapshot_failed {
                 (delay * 2).min(Duration::from_secs(30))
             } else {
                 Duration::from_secs(1)
             };
             // Coalesce watch bursts and bound retry load even when dependencies keep changing.
-            tokio::select! { _=tokio::signal::ctrl_c()=>break, _=terminate()=>break, task=tasks.join_next()=>{ bail!("background task stopped: {task:?}"); }, _=tokio::time::sleep(delay)=>() }
-            tokio::select! { _=tokio::signal::ctrl_c()=>break, _=terminate()=>break, task=tasks.join_next()=>{ bail!("background task stopped: {task:?}"); }, _=signal.notified()=>(), _=tokio::time::sleep(Duration::from_secs(30))=>() }
+            tokio::select! { _= &mut shutdown =>break, task=tasks.join_next()=>{ bail!("background task stopped: {task:?}"); }, _=tokio::time::sleep(delay)=>() }
+            if snapshot_failed {
+                continue;
+            }
+            tokio::select! { _= &mut shutdown =>break, task=tasks.join_next()=>{ bail!("background task stopped: {task:?}"); }, _=signal.notified()=>(), _=tokio::time::sleep(Duration::from_secs(30))=>() }
         }
         tasks.abort_all();
         Ok(())
-    }
-    async fn terminate() {
-        #[cfg(unix)]
-        {
-            if let Ok(mut s) =
-                tokio::signal::unix::signal(tokio::signal::unix::SignalKind::terminate())
-            {
-                s.recv().await;
-            }
-        }
-        #[cfg(not(unix))]
-        std::future::pending::<()>().await;
     }
 }

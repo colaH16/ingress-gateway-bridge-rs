@@ -4,7 +4,7 @@
 
 Rust는 tracing GC를 사용하지 않아 해당 GC cycle/STW가 없습니다. 메모리 해제·할당 비용과 OS 스케줄링 지연까지 없어지는 것은 아닙니다. Go GC는 동시 실행되는 부분과 짧은 STW 구간이 있습니다. GC trace의 전체 mark 시간은 STW가 아니므로 정지 시간에 합산하지 않았습니다. [Go GC 가이드](https://go.dev/doc/gc-guide), [측정 버전 runtime 문서](https://github.com/golang/go/blob/go1.25.5/src/runtime/extern.go).
 
-microbenchmark는 프로세스마다 warmup 후 고정 반복 횟수를 측정하고 7회 중앙값을 냈습니다. 입력 준비·JSON 결과 출력·Go의 사전 `runtime.GC()`는 시간 밖입니다. Rust는 결과의 drop을 루프 안에서 수행하며 Go는 측정 중 GC 비용을 포함합니다. 따라서 GC off는 측정 이후의 메모리 회수 비용을 포함하지 않습니다. 최적화에 의한 제거는 Go 전역 sink와 Rust `black_box`로 막았습니다. 출력 샘플의 의미가 같은지도 실행기가 확인합니다. Go allocation 수는 `runtime.MemStats` 차이이고 Rust allocation 수는 측정하지 않았습니다. 첫 회를 포함한 모든 최종 측정값을 공개하며 오차 범위는 신뢰구간이 아닌 관측 최솟값~최댓값입니다.
+microbenchmark는 CPU 2 하나에 고정하고 Go는 `GOMAXPROCS=1`로 실행했습니다. 동시 GC worker도 같은 CPU 시간을 나눠 씁니다. 프로세스마다 warmup 후 고정 반복 횟수를 측정하고 7회 중앙값을 냈습니다. 입력 준비·JSON 결과 출력·Go의 사전 `runtime.GC()`는 시간 밖입니다. Rust는 결과의 drop을 루프 안에서 수행하며 Go는 측정 중 GC 비용을 포함합니다. 따라서 GC off는 측정 이후의 메모리 회수 비용을 포함하지 않습니다. 최적화에 의한 제거는 Go 전역 sink와 Rust `black_box`로 막았습니다. 출력 샘플의 의미가 같은지도 실행기가 확인합니다. Go allocation 수는 `runtime.MemStats` 차이이고 Rust allocation 수는 측정하지 않았습니다. 첫 회를 포함한 모든 최종 측정값을 공개하며 오차 범위는 신뢰구간이 아닌 관측 최솟값~최댓값입니다.
 
 ## 결과 (ns/op; 중앙값과 관측 범위)
 

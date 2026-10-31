@@ -37,7 +37,7 @@ delete에는 UID와 resourceVersion precondition을 넣습니다. 여러 Route�
 ## 관측과 제한
 
 `/healthz`와 `/readyz`가 기본 `:8081`에서 제공됩니다. 첫 API 스냅샷 처리 후 ready가 됩니다.
-마지막 회차가 90초 넘게 완료되지 않으면 ready=false, 180초 이상이면 health=false입니다.
+마지막 회차가 90초 넘게 완료되지 않으면 ready=false입니다. health는 HTTP 프로세스 생존을 확인하며 API 서버 지연 때문에 재시작시키지 않습니다. SIGTERM/SIGINT는 스냅샷·쓰기 중에도 감지해 종료합니다. 스냅샷 실패에만 전역 backoff를 적용하고, 개별 Ingress 오류는 다른 리소스의 watch 처리를 30초 backoff로 지연시키지 않습니다.
 개별 source 의존성 오류는 JSON 로그의 `errors`에 표시되며 readiness와 구분됩니다.
 정상 회차의 `changes`, `errors`, source/route 수와 개별 작업·오류를 JSON 로그로 남깁니다.
 Kubernetes Warning Event 및 Prometheus metrics endpoint는 아직 제공하지 않습니다.
