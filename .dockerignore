@@ -1,0 +1,7 @@
+*
+!target/
+target/*
+!target/release/
+target/release/*
+!target/release/bridge-controller
+!LICENSE

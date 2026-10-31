@@ -1,0 +1,44 @@
+{
+  "ingress": {
+    "apiVersion": "networking.k8s.io/v1",
+    "kind": "Ingress",
+    "metadata": {
+      "name": "website",
+      "namespace": "apps",
+      "uid": "source-uid"
+    },
+    "spec": {
+      "ingressClassName": "public-apps",
+      "rules": [
+        {
+          "host": "website.example.com",
+          "http": {
+            "paths": [
+              {
+                "path": "/",
+                "pathType": "Prefix",
+                "backend": {
+                  "service": {
+                    "name": "website",
+                    "port": {
+                      "number": 80
+                    }
+                  }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "binding": {
+    "parentRefs": [
+      {
+        "name": "public",
+        "namespace": "gateway-system",
+        "sectionName": "https"
+      }
+    ]
+  }
+}

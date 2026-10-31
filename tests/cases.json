@@ -1,0 +1,4768 @@
+[
+  {
+    "name": "basic",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "Prefix/wp-admin/",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/wp-admin/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "Exact/exact/",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/exact/",
+                    "pathType": "Exact",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "Prefix/v1.0",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/v1.0",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "hostless",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "separate hosts",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            },
+            {
+              "host": "admin.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/private",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "admin",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "no uid",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "wildcard",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "*.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid host BAD.example",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "BAD.example",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid host bad_host",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "bad_host",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid host aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "no rules",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": []
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "no http",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com"
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "no paths",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": []
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "default backend",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "defaultBackend": {
+            "service": {
+              "name": "website",
+              "port": {
+                "number": 80
+              }
+            }
+          }
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "tls rejected",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "secretName": "certificate"
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "tls external",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "secretName": "certificate"
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ],
+        "tlsPolicy": "External"
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "pathType missing",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "implementation specific",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "ImplementationSpecific",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid path admin",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "admin",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid path /foo//bar",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/foo//bar",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid path /foo/../bar",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/foo/../bar",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid path /foo/./bar",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/foo/./bar",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid path /foo/..",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/foo/..",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid path /foo/.",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/foo/.",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid path /foo?bar",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/foo?bar",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid path /foo#bar",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/foo#bar",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid path /foo%2Fbar",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/foo%2Fbar",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid path /foo%2fbar",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/foo%2fbar",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid path /aaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "resource backend",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "resource": {
+                        "kind": "Bucket",
+                        "name": "bucket"
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid service 1service",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "1service",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid service invalid_name",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "invalid_name",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid service xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid port 0",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 0
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid port -1",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": -1
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "invalid port 65536",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 65536
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "ambiguous port",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80,
+                          "name": "http"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "named port",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "name": "http"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      },
+      "services": [
+        {
+          "metadata": {
+            "name": "website",
+            "namespace": "apps"
+          },
+          "spec": {
+            "ports": [
+              {
+                "name": "http",
+                "port": 8080,
+                "targetPort": 9000,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "missing service",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "name": "http"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "dependency"
+  },
+  {
+    "name": "missing named port",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "name": "http"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      },
+      "services": [
+        {
+          "metadata": {
+            "name": "website",
+            "namespace": "apps"
+          },
+          "spec": {
+            "ports": [
+              {
+                "name": "other",
+                "port": 8080,
+                "targetPort": 9000,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": "dependency"
+  },
+  {
+    "name": "named udp",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "name": "http"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      },
+      "services": [
+        {
+          "metadata": {
+            "name": "website",
+            "namespace": "apps"
+          },
+          "spec": {
+            "ports": [
+              {
+                "name": "http",
+                "port": 8080,
+                "targetPort": 9000,
+                "protocol": "UDP"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "wrong namespace",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "name": "http"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      },
+      "services": [
+        {
+          "metadata": {
+            "name": "website",
+            "namespace": "other"
+          },
+          "spec": {
+            "ports": [
+              {
+                "name": "http",
+                "port": 8080,
+                "targetPort": 9000,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": "dependency"
+  },
+  {
+    "name": "numeric udp",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      },
+      "services": [
+        {
+          "metadata": {
+            "name": "website",
+            "namespace": "apps"
+          },
+          "spec": {
+            "ports": [
+              {
+                "port": 80,
+                "protocol": "UDP"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "shared udp tcp",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      },
+      "services": [
+        {
+          "metadata": {
+            "name": "website",
+            "namespace": "apps"
+          },
+          "spec": {
+            "ports": [
+              {
+                "port": 80,
+                "protocol": "UDP"
+              },
+              {
+                "port": 80,
+                "protocol": "TCP"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "duplicate collapsed",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "duplicate conflict",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "other",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "16 rules",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/0",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/1",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/2",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/3",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/4",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/5",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/6",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/7",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/8",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/9",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/10",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/11",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/12",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/13",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/14",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/15",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "17 rules",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/0",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/1",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/2",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/3",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/4",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/5",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/6",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/7",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/8",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/9",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/10",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/11",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/12",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/13",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/14",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/15",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/16",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "foreign annotation",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "nginx.ingress.kubernetes.io/rewrite-target": "[invalid syntax"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "unknown annotations redacted",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/z": "secret-z",
+            "ingress-gateway-bridge.colah16.github.io/a": "secret-a"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "class conflict",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "kubernetes.io/ingress.class": "legacy"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "legacy class",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "kubernetes.io/ingress.class": "legacy"
+          }
+        },
+        "spec": {
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "no class pure conversion",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "long name",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "redirect 302",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/https-redirect": "true"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "website.example.com"
+              ]
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ],
+        "tlsPolicy": "External",
+        "httpRedirectParentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "http"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "redirect 301",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/https-redirect": "true",
+            "ingress-gateway-bridge.colah16.github.io/https-redirect-status-code": "301"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "website.example.com"
+              ]
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ],
+        "tlsPolicy": "External",
+        "httpRedirectParentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "http"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "redirect missing binding",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/https-redirect": "true"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "bad redirect yes",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/https-redirect": "yes"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "bad redirect TRUE",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/https-redirect": "TRUE"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "bad redirect 1",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/https-redirect": "1"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "orphan redirect status",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/https-redirect-status-code": "301"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "bad redirect status",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/https-redirect": "true",
+            "ingress-gateway-bridge.colah16.github.io/https-redirect-status-code": "308"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ],
+          "tls": [
+            {
+              "hosts": [
+                "website.example.com"
+              ]
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ],
+        "tlsPolicy": "External",
+        "httpRedirectParentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "http"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "request-headers valid",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/request-headers": "{\"set\": [{\"name\": \"X-Test\", \"value\": \"value\"}], \"remove\": [\"Server\"]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "request-headers empty",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/request-headers": "{}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "request-headers missing value",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/request-headers": "{\"set\": [{\"name\": \"X-Test\"}]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "request-headers null value",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/request-headers": "{\"set\": [{\"name\": \"X-Test\", \"value\": null}]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "request-headers duplicate case",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/request-headers": "{\"remove\": [\"Server\", \"server\"]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "request-headers bad name",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/request-headers": "{\"remove\": [\"Bad Name\"]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "request-headers bad value",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/request-headers": "{\"set\": [{\"name\": \"X-Test\", \"value\": \"a\\r\\nb\"}]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "request-headers unknown",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/request-headers": "{\"unknown\": \"x\"}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "request-headers duplicate JSON key",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/request-headers": "{\"remove\":[\"A\"],\"remove\":[\"B\"]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "response-headers valid",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/response-headers": "{\"set\": [{\"name\": \"X-Test\", \"value\": \"value\"}], \"remove\": [\"Server\"]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "ok"
+  },
+  {
+    "name": "response-headers empty",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/response-headers": "{}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "response-headers missing value",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/response-headers": "{\"set\": [{\"name\": \"X-Test\"}]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "response-headers null value",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/response-headers": "{\"set\": [{\"name\": \"X-Test\", \"value\": null}]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "response-headers duplicate case",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/response-headers": "{\"remove\": [\"Server\", \"server\"]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "response-headers bad name",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/response-headers": "{\"remove\": [\"Bad Name\"]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "response-headers bad value",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/response-headers": "{\"set\": [{\"name\": \"X-Test\", \"value\": \"a\\r\\nb\"}]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "response-headers unknown",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/response-headers": "{\"unknown\": \"x\"}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "response-headers duplicate JSON key",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid",
+          "annotations": {
+            "ingress-gateway-bridge.colah16.github.io/response-headers": "{\"remove\":[\"A\"],\"remove\":[\"B\"]}"
+          }
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "literal /space here",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/space here",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "literal /percent%",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/percent%",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "literal /unicode\ud55c",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/unicode\ud55c",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "literal /back\\slash",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/back\\slash",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "number": 80
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  },
+  {
+    "name": "dependency cannot hide rejection",
+    "input": {
+      "ingress": {
+        "apiVersion": "networking.k8s.io/v1",
+        "kind": "Ingress",
+        "metadata": {
+          "name": "website",
+          "namespace": "apps",
+          "uid": "source-uid"
+        },
+        "spec": {
+          "ingressClassName": "public-apps",
+          "rules": [
+            {
+              "host": "website.example.com",
+              "http": {
+                "paths": [
+                  {
+                    "path": "/",
+                    "pathType": "Prefix",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "name": "missing"
+                        }
+                      }
+                    }
+                  },
+                  {
+                    "path": "/",
+                    "pathType": "ImplementationSpecific",
+                    "backend": {
+                      "service": {
+                        "name": "website",
+                        "port": {
+                          "name": "missing"
+                        }
+                      }
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        }
+      },
+      "binding": {
+        "parentRefs": [
+          {
+            "name": "public",
+            "namespace": "gateway-system",
+            "sectionName": "https"
+          }
+        ]
+      }
+    },
+    "expected": "rejected"
+  }
+]
