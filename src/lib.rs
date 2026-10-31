@@ -2,6 +2,7 @@
 pub mod controller;
 pub mod model;
 pub mod options;
+pub mod settings;
 use model::*;
 use serde::Serialize;
 use serde_json::{Value, json};

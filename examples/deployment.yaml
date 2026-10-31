@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ingress-gateway-bridge-rs
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app: ingress-gateway-bridge-rs
+  template:
+    metadata:
+      labels:
+        app: ingress-gateway-bridge-rs
+    spec:
+      serviceAccountName: ingress-gateway-bridge
+      containers:
+        - name: controller
+          # Replace with a tested image digest before use.
+          image: ghcr.io/colah16/ingress-gateway-bridge-rs:REPLACE_WITH_TESTED_TAG
+          env:
+            - name: BRIDGE_CONFIG
+              value: /etc/bridge/bridge.yaml
+            - name: BRIDGE_DRY_RUN
+              value: "true"
+            - name: BRIDGE_SINGLE_WRITER
+              value: "false"
+            - name: BRIDGE_HEALTH_PROBE_BIND_ADDRESS
+              value: "0.0.0.0:8081"
+          ports:
+            - name: health
+              containerPort: 8081
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: health
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: health
+          volumeMounts:
+            - name: config
+              mountPath: /etc/bridge
+              readOnly: true
+      volumes:
+        - name: config
+          configMap:
+            name: ingress-gateway-bridge-config

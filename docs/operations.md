@@ -60,21 +60,50 @@ Kubernetes Warning Event 및 Prometheus metrics endpoint는 아직 제공하지 
 
 ## 전환과 복구
 
-검증한 이미지 digest를 GitOps Deployment에 지정하고 `--single-writer=true`를 추가합니다.
+검증한 이미지 digest와 환경변수를 GitOps Deployment에 지정합니다. `command`/`args`는 지정하지 않습니다.
 기존 한 replica/Recreate 전략, ServiceAccount, 제한된 writer RBAC를 유지합니다.
 교체 전후 Route UID/spec을 비교하고, 실제 서비스 health와 Route Accepted/ResolvedRefs의 observedGeneration을 확인합니다.
 실패하면 GitOps에서 Go 이미지 digest와 Go 인자로 되돌립니다. Route owner와 이름이 같아 Go가 이어서 관리합니다.
 CLI나 controller를 운영 writer와 동시에 쓰기 모드로 실행하지 마세요.
 
-## 시작 옵션과 watch 연결
+## 환경변수로 설정하기
 
-이미지 ENTRYPOINT는 `/bridge-controller`입니다. Deployment의 `args`가 이
-실행 파일에 전달되며 환경변수로 자동 변환되지 않습니다. 현재 운영 설정은
-명령행 옵션과 ConfigMap의 설정 파일을 사용하고, `RUST_LOG`는 로그 필터용 환경변수입니다.
-`--single-writer=true`는 단일 writer 운영 전제를 명시하는 시작 확인 옵션입니다.
-다른 writer를 차단하는 잠금이 아니며 replicas=1/Recreate와 운영 절차로 보장합니다.
+이미지는 `ENTRYPOINT ["/bridge-controller"]`만 지정합니다. 운영 Deployment에는
+`command`와 `args`를 지정하지 않습니다. 각 환경변수를 독립적으로 덮어쓸 수 있고,
+지정하지 않은 값은 이미지와 프로그램의 기본값을 사용합니다.
+
+| 환경변수 | 이미지 기본값 | 역할 |
+| --- | --- | --- |
+| `BRIDGE_CONFIG` | `/etc/bridge/bridge.yaml` | ConfigMap 설정 파일 경로 |
+| `BRIDGE_DRY_RUN` | `true` | true면 API 쓰기 없이 계획 출력 |
+| `BRIDGE_SINGLE_WRITER` | `false` | 쓰기 모드의 단일 writer 운영 확인 |
+| `BRIDGE_HEALTH_PROBE_BIND_ADDRESS` | `0.0.0.0:8081` | health/readiness listen 주소 |
+| `BRIDGE_ONCE` | `false` | true면 읽기 전용 1회 실행 후 종료 |
+| `RUST_LOG` | 프로그램 기본 `info` | 로그 필터 |
+
+```yaml
+env:
+  - name: BRIDGE_CONFIG
+    value: /etc/bridge/bridge.yaml
+  - name: BRIDGE_DRY_RUN
+    value: "false"
+  - name: BRIDGE_SINGLE_WRITER
+    value: "true"
+  - name: BRIDGE_HEALTH_PROBE_BIND_ADDRESS
+    value: "0.0.0.0:8081"
+```
+
+CLI는 로컬 디버깅과 호환용으로 남겨두었습니다. 우선순위는 명시한 CLI 옵션 > 환경변수 > 프로그램 기본값입니다.
+CLI 하나를 지정해도 나머지 환경변수는 유지됩니다. 바이너리를 직접 실행할 때의 기본 config 경로는 `bridge.yaml`입니다.
+잘못된 boolean, 빈 config 경로, single-writer 확인 없는 쓰기, once와 쓰기 동시 사용은 시작 시 거부합니다.
+`BRIDGE_SINGLE_WRITER=true`는 잠금이 아니며 한 replica/Recreate와 운영 절차로 단일 writer를 보장합니다.
+
+[환경변수 기반 Deployment 예제](../examples/deployment.yaml)는 dry-run 기본값이며,
+기존 ServiceAccount/RBAC와 설정 ConfigMap이 필요합니다. 이미지 tag/digest는 실행 전에 지정하세요.
+
+## Watch 연결 제한
 
 초기 운영 로그에서 45초 HTTP read timeout이 정상 watch를 끊는 현상을 발견했습니다.
-후속 수정은 watch의 기본 서버 timeout(290초)보다 긴 330초 read timeout을 사용하고,
+수정은 watch의 기본 서버 timeout(290초)보다 긴 330초 read timeout을 사용하고,
 일반 snapshot/apply 작업에는 별도 45초 deadline을 유지합니다.
-watch 오류는 재접속되며 주기적 재조정도 계속 실행되지만, 불필요한 연결 종료를 줄이는 것이 수정 목적입니다.
+수정 코드의 읽기 전용 100초 관찰에서 경고 없이 여러 회차가 완료됐습니다.
