@@ -4,9 +4,9 @@
 
 ```sh
 cargo build --locked --bin bridge-controller
-./target/debug/bridge-controller --config=bridge.yaml --once
-./target/debug/bridge-controller --config=bridge.yaml --dry-run=true
-./target/debug/bridge-controller --config=bridge.yaml --dry-run=false --single-writer=true
+BRIDGE_CONFIG=bridge.yaml BRIDGE_ONCE=true ./target/debug/bridge-controller
+BRIDGE_CONFIG=bridge.yaml ./target/debug/bridge-controller
+BRIDGE_CONFIG=bridge.yaml BRIDGE_DRY_RUN=false BRIDGE_SINGLE_WRITER=true ./target/debug/bridge-controller
 ```
 
 `--once`는 읽기 전용입니다. 기본 dry-run은 어떤 API 쓰기도 하지 않습니다.
@@ -107,3 +107,17 @@ CLI 하나를 지정해도 나머지 환경변수는 유지됩니다. 바이너�
 수정은 watch의 기본 서버 timeout(290초)보다 긴 330초 read timeout을 사용하고,
 일반 snapshot/apply 작업에는 별도 45초 deadline을 유지합니다.
 수정 코드의 읽기 전용 100초 관찰에서 경고 없이 여러 회차가 완료됐습니다.
+
+## 현재 운영 이미지와 환경변수 배포
+
+2026-10-31 소스 `7e6c255bb468fc95e829745dfa226782a312cae1`, 이미지
+`ghcr.io/colah16/ingress-gateway-bridge-rs@sha256:366d34531d56a3e75f80e8de7f21e03c9b1cf28ba19c864378ff9d962a335e9f`
+로 운영 Deployment를 갱신했습니다.
+[CI 실행](https://github.com/colaH16/ingress-gateway-bridge-rs/actions/runs/41162026526)에서
+Rust 전체 검사와 Go 86개 비교를 통과했습니다. 환경변수 전용 설정·개별 override 보존·CLI 우선순위·잘못된 값 거부에 대한 7개 테스트도 포함됩니다.
+
+운영 Deployment에는 `command`와 `args`가 없고 `BRIDGE_CONFIG`, `BRIDGE_DRY_RUN`,
+`BRIDGE_SINGLE_WRITER`, `BRIDGE_HEALTH_PROBE_BIND_ADDRESS`만 env로 지정합니다.
+이미지 기본값과 env만 사용한 preflight Job이 변경 0건/오류 0건으로 완료됐고,
+배포된 Pod의 임시 Route 생성·갱신·HTTPS 응답과 삭제 후 GC를 다시 검증했습니다.
+기존 Route 22개·Gateway 3개·Ingress 66개의 UID/spec과 HTTP 15개 응답 코드를 보존했습니다.
