@@ -12,19 +12,24 @@ Go `ingress-gateway-bridge`의 변환 코어를 Rust로 옮기는 비교 학습 
 
 학습 순서: **ingress-gateway-bridge → gotalk → KubeShelf**.
 
-## 성능 비교: Go GC 켬 · GC 끔 · Rust
+## 성능 비교: Go GC 켬 · GC 끔 · Rust 변경 전/후
 
-2026-10-31 공유 Linux x86_64 VM에서 순수 변환 함수를 각각 7회 측정한 중앙값입니다. **현재 Rust 포트는 이 실험에서 더 느렸습니다.** GC가 없다는 장점이 전체 변환의 속도 향상을 보장하지는 않았습니다.
+처음 측정에서 Rust 포트는 Go보다 약 3배 느렸습니다. 프로파일링 결과 원인은 출력을 `serde_json::Value`로 만들며 생긴 반복 복사와 할당이었습니다(convert1당 할당 180회). 출력을 typed `HttpRoute` 구조체로 바꾸고 입력 문자열을 빌리도록 수정한 뒤 할당은 12회로 줄었습니다. 이후 같은 VM에서 Go GC 켬/끔, Rust 변경 전/후를 7 round 회전하며 다시 측정했습니다(중앙값, 괄호는 관측 범위). **이 최적화는 아직 운영에 배포하지 않았습니다.**
 
-| 작업 | Go GC 켬 | Go GC 끔 | Rust | Rust / Go GC 켬 시간 |
-|---|---:|---:|---:|---:|
-| Ingress class 조회 | 2.41 ns/op | 2.45 ns/op | 7.82 ns/op | 3.24배 |
-| Ingress 1개 → HTTPRoute 변환 | 2.22 μs/op | 2.84 μs/op | 6.70 μs/op | 3.01배 |
-| 합성 Ingress 22개 묶음 변환 | 49.98 μs/op | 61.95 μs/op | 155.92 μs/op | 3.12배 |
+| 작업 (1 op) | Go GC 켬 | Go GC 끔 | Rust 변경 전 | Rust 변경 후 | 변경 후 / 전 |
+|---|---:|---:|---:|---:|---:|
+| Ingress 1개 → HTTPRoute 변환 | 2.15 μs | 2.01 μs | 6.59 μs | **0.35 μs** (0.25~0.83) | 0.05배 |
+| 합성 Ingress 22개 변환 | 44.6 μs | 45.3 μs | 145.4 μs | **19.1 μs** (6.3~20.8) | 0.13배 |
+| 22개 변환 + JSON bytes 직렬화 | 90.9 μs | 85.3 μs | 167.9 μs | **35.9 μs** (19.6~58.5) | 0.20배 |
+| controller 생성 경로 22개 (Rust만) | — | — | 182.0 μs | 73.3 μs | 0.43배 |
+| controller 정상 상태 `plan` 22개 (Rust만) | — | — | 394.5 μs | 115.0 μs | 0.30배 |
 
-22개 묶음의 절대 차이는 약 **106μs**입니다. Go는 전용 HTTPRoute 구조체, Rust는 `serde_json::Value`를 구성하므로 자료구조·할당 방식이 다릅니다. 이는 최적화 후보이며, 원인별 기여율은 아직 프로파일링하지 않았습니다. Go GC를 끈 경우도 더 빨라지지 않았습니다. class 조회는 Go 측정에서도 할당 0·GC 0회여서 GC 차이를 보여주는 사례가 아닙니다.
+- 절대 변화: 22개 변환은 **145.4μs → 19.1μs로 약 126μs 감소**, 정상 상태 계획은 22개당 약 280μs 감소입니다. 원래도 작던 컨트롤러 CPU 비용이며 사용자 트래픽 경로에는 없습니다.
+- Kubernetes API에는 여전히 `Value`/JSON을 보내므로 typed→`Value` 변환(약 2.1μs/route)이 controller로 옮겨졌습니다. 그래서 순수 변환만 보지 않고 직렬화·생성 경로·정상 상태 계획까지 따로 측정했습니다.
+- 변경 후 Rust 변환은 이 입력에서 Go GC 켬보다 짧았습니다(convert22 0.40배). 다만 Rust controller의 `Value` 생성 경로에 대응하는 Go 측은 측정하지 않았으므로 controller 전체 비교는 주장하지 않습니다.
+- Go GC 켬은 변환 측정 구간(수만~십만 회 반복) 전체에서 GC 98~109회, STW 합계 중앙값 약 0.7ms, 가장 긴 단일 STW 12~13μs였습니다. GC 끔은 더 빠르지 않았고 힙이 최대 310MiB까지 커졌습니다. 공유 VM이라 짧은 작업일수록 실행마다 크게 흔들렸습니다.
 
-컨트롤러는 사용자 HTTP 트래픽을 중계하지 않습니다. 이 수치는 변환 작업의 비용이며 서비스 응답 시간이나 Kubernetes reconcile 전체 시간을 뜻하지 않습니다. Go/Rust 출력 비교, 원시 결과·범위·GC 횟수·재현 코드는 [상세 성능 기록](docs/performance.md)에 있습니다.
+변경 전 최초 공개 결과(Rust 6.70μs/155.92μs, Go 2.22μs/49.98μs)는 원문 그대로 보존합니다. 원인 측정, 단계별 비용, GC/STW, 한계는 [상세 성능 기록](docs/performance.md), 원시 결과는 [paired.json](docs/benchmarks/results/paired.json)과 [진단 결과](docs/benchmarks/results/diag/)에 있습니다.
 
 [Claude 독립 코드 검토와 수정 기록](docs/CODE_REVIEW.md)도 공개합니다.
 
@@ -97,13 +102,13 @@ Go가 출력하는 빈 `status`와 null `creationTimestamp`만 정규화하며 �
 1. `examples/basic.json`: 입력과 실행 결과를 먼저 확인
 2. [Go ↔ Rust 학습 가이드](docs/learning.md): 원본 함수와 Rust 대응 관계
 3. `src/model.rs`: 입력 모델과 `Option`, `Vec`, Serde
-4. `src/lib.rs`: 빌려 읽는 입력, 소유하는 출력, 오류 전파
+4. `src/lib.rs`, `src/route.rs`: 빌려 읽는 입력, 입력을 빌리는 typed 출력, 오류 전파
 5. `tests/translation.rs`와 `tests/cases.json`: 동작 계약
 6. `src/main.rs`: 파일·stdin·종료 코드 처리
 
-Rust 출력을 `serde_json::Value`로 표현한 것은 첫 단계의 의존성과 비교 범위를 작게 유지하기 위한 선택입니다.
-입력은 명시적인 구조체로 해석합니다. 컨트롤러 단계에서는 Kubernetes/Gateway 타입을 사용해
-출력 구조를 컴파일 시점에도 검증하는 방향으로 확장합니다.
+처음에는 의존성과 비교 범위를 작게 유지하려고 Rust 출력을 `serde_json::Value`로 표현했습니다.
+측정 결과 그 표현이 변환 비용의 대부분이어서, 이제 `src/route.rs`의 typed `HttpRoute`가 생성 필드만 표현합니다.
+입력 문자열은 빌리고 계산한 이름만 소유합니다. 이유와 수치는 [성능 기록](docs/performance.md)과 [학습 가이드](docs/learning.md)에 있습니다.
 
 ## 학습 진행
 

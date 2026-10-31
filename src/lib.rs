@@ -2,14 +2,19 @@
 pub mod controller;
 pub mod model;
 pub mod options;
+pub mod route;
 pub mod settings;
 use model::*;
+use route::*;
 use serde::Serialize;
-use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
 use std::collections::BTreeMap;
 
 pub const ANNOTATION_PREFIX: &str = "ingress-gateway-bridge.colah16.github.io/";
+/// `ANNOTATION_PREFIX` + suffix, spelled out so lookups do not allocate.
+pub const CONTROLLER_ANNOTATION: &str = "ingress-gateway-bridge.colah16.github.io/controller";
+pub const SOURCE_ANNOTATION: &str = "ingress-gateway-bridge.colah16.github.io/source";
+pub const REDIRECT_ANNOTATION: &str = "ingress-gateway-bridge.colah16.github.io/https-redirect";
 const LEGACY_CLASS: &str = "kubernetes.io/ingress.class";
 
 /// Rejected is permanent; Dependency means a Service snapshot may resolve it later.
@@ -107,23 +112,27 @@ pub fn validate_binding(binding: &Binding) -> std::result::Result<(), String> {
 }
 
 pub fn route_name(name: &str, host: &str) -> String {
+    const HEX: &[u8; 16] = b"0123456789abcdef";
     let mut hash = Sha256::new();
     hash.update(name.as_bytes());
     hash.update([0]);
     hash.update(host.as_bytes());
-    let suffix: String = hash.finalize()[..8]
-        .iter()
-        .map(|b| format!("{b:02x}"))
-        .collect();
+    let digest = hash.finalize();
     // Kubernetes names are ASCII. floor_char_boundary is avoided to support older compilers.
     let mut end = name.len().min(39);
     while !name.is_char_boundary(end) {
         end -= 1;
     }
-    format!(
-        "{}-bridge-{suffix}",
-        name[..end].trim_end_matches(['-', '.'])
-    )
+    let stem = name[..end].trim_end_matches(['-', '.']);
+    // One exact-size buffer instead of a String per hex byte plus format!.
+    let mut result = String::with_capacity(stem.len() + "-bridge-".len() + 16);
+    result.push_str(stem);
+    result.push_str("-bridge-");
+    for byte in &digest[..8] {
+        result.push(HEX[usize::from(byte >> 4)] as char);
+        result.push(HEX[usize::from(byte & 15)] as char);
+    }
+    result
 }
 
 fn literal_path(s: &str) -> bool {
@@ -169,7 +178,11 @@ fn path_match(path: &Path) -> Result<(&'static str, &str)> {
         },
     ))
 }
-fn backend_ref(namespace: &str, backend: &Backend, services: &[Service]) -> Result<Value> {
+fn backend_ref<'a>(
+    namespace: &str,
+    backend: &'a Backend,
+    services: &[Service],
+) -> Result<BackendRef<'a>> {
     let svc = backend
         .service
         .as_ref()
@@ -213,40 +226,59 @@ fn backend_ref(namespace: &str, backend: &Backend, services: &[Service]) -> Resu
         return Err(reject("backend Service port must be 1..65535"));
     }
     if let Some(service) = service {
-        let candidates: Vec<_> = service
+        let mut candidates = service
             .spec
             .ports
             .iter()
             .filter(|p| p.port == port)
-            .collect();
-        if !candidates.is_empty()
-            && !candidates
-                .iter()
-                .any(|p| p.protocol.is_empty() || p.protocol == "TCP")
+            .peekable();
+        if candidates.peek().is_some()
+            && !candidates.any(|p| p.protocol.is_empty() || p.protocol == "TCP")
         {
             return Err(reject("HTTPRoute requires a TCP Service port"));
         }
     }
-    Ok(json!({"name":svc.name,"port":port,"group":"","kind":"Service","weight":1}))
+    Ok(BackendRef {
+        group: "",
+        kind: "Service",
+        name: &svc.name,
+        port,
+        weight: 1,
+    })
 }
 
 /// Pure conversion: borrows input, owns output, performs no I/O.
-pub fn convert(input: &Input) -> Result<Vec<Value>> {
-    let ingress = &input.ingress;
+pub fn convert(input: &Input) -> Result<Vec<HttpRoute<'_>>> {
+    translate(
+        &input.ingress,
+        &input.binding,
+        &input.services,
+        &input.controller_name,
+    )
+}
+
+/// Same as `convert` with separately owned parts, like Go's `Convert` arguments.
+/// The output borrows input strings; serialize or convert it before the input is dropped.
+pub fn translate<'a>(
+    ingress: &'a Ingress,
+    binding: &'a Binding,
+    services: &[Service],
+    controller_name: &'a str,
+) -> Result<Vec<HttpRoute<'a>>> {
     if ingress.metadata.uid.is_empty() {
         return Err(reject("source Ingress must have a UID"));
     }
     let options = options::parse(&ingress.metadata.annotations)?;
     if options.redirect
-        && (input.binding.http_redirect_parent_refs.is_empty()
+        && (binding.http_redirect_parent_refs.is_empty()
             || ingress.spec.tls.is_empty()
-            || input.binding.tls_policy != "External")
+            || binding.tls_policy != "External")
     {
         return Err(reject(
             "HTTPS redirect requires httpRedirectParentRefs, Ingress TLS, and tlsPolicy: External",
         ));
     }
-    if !ingress.spec.tls.is_empty() && input.binding.tls_policy != "External" {
+    if !ingress.spec.tls.is_empty() && binding.tls_policy != "External" {
         return Err(reject(
             "Ingress TLS requires tlsPolicy: External and preconfigured TLS; secrets are not copied",
         ));
@@ -259,8 +291,9 @@ pub fn convert(input: &Input) -> Result<Vec<Value>> {
     if ingress.spec.rules.is_empty() {
         return Err(reject("at least one HTTP rule is required"));
     }
-    let mut rules: BTreeMap<&str, Vec<Value>> = BTreeMap::new();
-    let mut seen: BTreeMap<(&str, &str, &str), Value> = BTreeMap::new();
+    let mut rules: BTreeMap<&str, Vec<HttpRouteRule>> = BTreeMap::new();
+    // Service name and port; the port is None while a named port is unresolved.
+    let mut seen: BTreeMap<(&str, &str, &str), (&str, Option<i32>)> = BTreeMap::new();
     let mut dependency_error = None;
     for rule in &ingress.spec.rules {
         if rule.host.contains('*') {
@@ -278,41 +311,51 @@ pub fn convert(input: &Input) -> Result<Vec<Value>> {
             .ok_or_else(|| reject("every rule must contain HTTP paths"))?;
         for path in &http.paths {
             let (kind, value) = path_match(path)?;
-            let backend = match backend_ref(
-                &ingress.metadata.namespace,
-                &path.backend,
-                &input.services,
-            ) {
-                Ok(value) => value,
+            let backend = match backend_ref(&ingress.metadata.namespace, &path.backend, services) {
+                Ok(backend) => Some(backend),
                 Err(e @ Error::Rejected(_)) => return Err(e),
                 Err(e) => {
                     if dependency_error.is_none() {
                         dependency_error = Some(e);
                     }
-                    json!({"name":path.backend.service.as_ref().expect("validated backend").name})
+                    None
                 }
             };
+            let target = match &backend {
+                Some(b) => (b.name, Some(b.port)),
+                None => (
+                    path.backend
+                        .service
+                        .as_ref()
+                        .expect("validated backend")
+                        .name
+                        .as_str(),
+                    None,
+                ),
+            };
             let key = (rule.host.as_str(), kind, value);
-            if let Some(previous) = seen.get(&key) {
-                if previous["name"] != backend["name"]
-                    || (!previous["port"].is_null()
-                        && !backend["port"].is_null()
-                        && previous["port"] != backend["port"])
+            if let Some(previous) = seen.get_mut(&key) {
+                if previous.0 != target.0
+                    || matches!((previous.1, target.1), (Some(a), Some(b)) if a != b)
                 {
                     return Err(reject("duplicate host/path points to different backends"));
                 }
-                if previous["port"].is_null() {
-                    seen.insert(key, backend);
+                if previous.1.is_none() {
+                    *previous = target;
                 }
                 continue;
             }
-            seen.insert(key, backend.clone());
-            if backend["port"].is_null() {
+            seen.insert(key, target);
+            let Some(backend) = backend else {
                 continue;
-            }
-            rules.entry(&rule.host).or_default().push(
-                json!({"matches":[{"path":{"type":kind,"value":value}}],"backendRefs":[backend]}),
-            );
+            };
+            rules.entry(&rule.host).or_default().push(HttpRouteRule {
+                backend_refs: vec![backend],
+                filters: options.filters.clone(),
+                matches: vec![HttpRouteMatch {
+                    path: PathMatch { kind, value },
+                }],
+            });
         }
     }
     let mut counts = BTreeMap::new();
@@ -327,54 +370,90 @@ pub fn convert(input: &Input) -> Result<Vec<Value>> {
     if let Some(e) = dependency_error {
         return Err(e);
     }
-    let parents: Vec<_> = input.binding.parent_refs.iter().map(|p| {
-        let mut v = json!({"name":p.name,"namespace":p.namespace,"group":"gateway.networking.k8s.io","kind":"Gateway"});
-        if !p.section_name.is_empty() { v["sectionName"] = json!(p.section_name); } v
-    }).collect();
-    let mut routes = Vec::new();
-    for (host, mut host_rules) in rules {
-        if !options.filters.is_empty() {
-            for rule in &mut host_rules {
-                rule["filters"] = json!(options.filters);
-            }
-        }
+    let m = &ingress.metadata;
+    let source = [m.namespace.as_str(), "/", m.name.as_str()].concat();
+    let mut routes = Vec::with_capacity(rules.len() * if options.redirect { 2 } else { 1 });
+    for (host, host_rules) in rules {
         if host_rules.len() > 16 {
             return Err(reject(
                 "a host exceeds the Gateway API limit of 16 rules per HTTPRoute",
             ));
         }
-        let m = &ingress.metadata;
-        let mut spec = json!({"parentRefs":parents,"rules":host_rules});
-        if !host.is_empty() {
-            spec["hostnames"] = json!([host]);
-        }
-        routes.push(json!({"apiVersion":"gateway.networking.k8s.io/v1","kind":"HTTPRoute",
-            "metadata":{"name":route_name(&m.name,host),"namespace":m.namespace,
-                "labels":{"app.kubernetes.io/managed-by":"ingress-gateway-bridge"},
-                "annotations":{format!("{ANNOTATION_PREFIX}controller"):input.controller_name,format!("{ANNOTATION_PREFIX}source"):format!("{}/{}",m.namespace,m.name)},
-                "ownerReferences":[{"apiVersion":"networking.k8s.io/v1","kind":"Ingress","name":m.name,"uid":m.uid,"controller":true,"blockOwnerDeletion":false}]},
-            "spec":spec}));
-    }
-    if options.redirect {
-        let mut result = Vec::new();
-        for route in routes {
-            let host = route["spec"]["hostnames"][0].as_str().unwrap_or("");
-            let mut redirect = route.clone();
-            redirect["metadata"]["name"] = json!(route_name(
-                &ingress.metadata.name,
-                &format!("{host}\0https-redirect")
-            ));
-            redirect["spec"]["parentRefs"] =
-                json!(parent_refs(&input.binding.http_redirect_parent_refs));
-            redirect["spec"]["rules"] = json!([{"matches":[{"path":{"type":"PathPrefix","value":"/"}}],"filters":[{"type":"RequestRedirect","requestRedirect":{"scheme":"https","port":443,"statusCode":options.status}}]}]);
-            result.push(route);
-            result.push(redirect);
-        }
-        return Ok(result);
+        let hostnames = if host.is_empty() { vec![] } else { vec![host] };
+        let metadata = RouteMetadata {
+            annotations: Annotations {
+                controller: controller_name,
+                source: source.clone(),
+            },
+            labels: Labels {
+                managed_by: "ingress-gateway-bridge",
+            },
+            name: route_name(&m.name, host),
+            namespace: &m.namespace,
+            owner_references: [OwnerReference {
+                api_version: "networking.k8s.io/v1",
+                block_owner_deletion: false,
+                controller: true,
+                kind: "Ingress",
+                name: &m.name,
+                uid: &m.uid,
+            }],
+        };
+        let redirect = options.redirect.then(|| HttpRoute {
+            api_version: API_VERSION,
+            kind: "HTTPRoute",
+            metadata: RouteMetadata {
+                name: route_name(&m.name, &format!("{host}\0https-redirect")),
+                ..metadata.clone()
+            },
+            spec: RouteSpec {
+                hostnames: hostnames.clone(),
+                parent_refs: parent_refs(&binding.http_redirect_parent_refs),
+                rules: vec![HttpRouteRule {
+                    backend_refs: vec![],
+                    filters: vec![HttpRouteFilter {
+                        request_header_modifier: None,
+                        request_redirect: Some(RequestRedirect {
+                            port: 443,
+                            scheme: "https",
+                            status_code: options.status,
+                        }),
+                        response_header_modifier: None,
+                        kind: "RequestRedirect",
+                    }],
+                    matches: vec![HttpRouteMatch {
+                        path: PathMatch {
+                            kind: "PathPrefix",
+                            value: "/",
+                        },
+                    }],
+                }],
+            },
+        });
+        routes.push(HttpRoute {
+            api_version: API_VERSION,
+            kind: "HTTPRoute",
+            metadata,
+            spec: RouteSpec {
+                hostnames,
+                parent_refs: parent_refs(&binding.parent_refs),
+                rules: host_rules,
+            },
+        });
+        routes.extend(redirect);
     }
     Ok(routes)
 }
 
-pub fn parent_refs(parents: &[Parent]) -> Vec<Value> {
-    parents.iter().map(|p| { let mut v=json!({"name":p.name,"namespace":p.namespace,"group":"gateway.networking.k8s.io","kind":"Gateway"}); if !p.section_name.is_empty() { v["sectionName"]=json!(p.section_name); } v }).collect()
+pub fn parent_refs(parents: &[Parent]) -> Vec<ParentReference<'_>> {
+    parents
+        .iter()
+        .map(|p| ParentReference {
+            group: GATEWAY_GROUP,
+            kind: "Gateway",
+            name: &p.name,
+            namespace: &p.namespace,
+            section_name: &p.section_name,
+        })
+        .collect()
 }

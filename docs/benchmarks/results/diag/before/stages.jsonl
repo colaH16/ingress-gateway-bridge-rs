@@ -1,0 +1,5 @@
+{"stage":"convert1(+drop)","batches":30,"median_ns":7447.5,"min_ns":6447.8,"max_ns":7948.6}
+{"stage":"to_vec(prebuilt convert output)","batches":30,"median_ns":718.0,"min_ns":601.8,"max_ns":859.1}
+{"stage":"to_value(prebuilt convert output)+drop","batches":30,"median_ns":2567.6,"min_ns":2167.0,"max_ns":2664.2}
+{"stage":"to_vec(prebuilt Value)","batches":30,"median_ns":723.2,"min_ns":598.7,"max_ns":855.7}
+{"stage":"convert1+to_vec","batches":30,"median_ns":8529.8,"min_ns":7525.1,"max_ns":9189.4}

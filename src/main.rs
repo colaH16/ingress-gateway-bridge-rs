@@ -1,5 +1,7 @@
 // SPDX-License-Identifier: Apache-2.0
-use ingress_gateway_bridge_rs::{Error, class_name, convert, model::Input, validate_binding};
+use ingress_gateway_bridge_rs::{
+    Error, class_name, convert, model::Input, route::HttpRoute, validate_binding,
+};
 use serde_json::json;
 use std::{
     io::{self, Read},
@@ -28,10 +30,12 @@ fn run() -> Result<u8, Box<dyn std::error::Error>> {
     validate_binding(&input.binding)?;
     match class_name(&input.ingress).and_then(|_| convert(&input)) {
         Ok(routes) => {
-            println!(
-                "{}",
-                serde_json::to_string_pretty(&json!({"routes":routes}))?
-            );
+            // Typed fields serialize directly; no intermediate serde_json::Value.
+            #[derive(serde::Serialize)]
+            struct Output<'a> {
+                routes: Vec<HttpRoute<'a>>,
+            }
+            println!("{}", serde_json::to_string_pretty(&Output { routes })?);
             Ok(0)
         }
         Err(e) => {

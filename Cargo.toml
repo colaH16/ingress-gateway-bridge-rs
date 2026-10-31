@@ -4,7 +4,7 @@ version = "0.2.0"
 default-run = "ingress-gateway-bridge-rs"
 edition = "2024"
 license = "Apache-2.0"
-description = "Offline Rust learning port of the Go Ingress to HTTPRoute translator"
+description = "Rust learning port of the Go Ingress to HTTPRoute translator, with a single-writer Kubernetes controller"
 
 [dependencies]
 serde = { version = "1", features = ["derive"] }

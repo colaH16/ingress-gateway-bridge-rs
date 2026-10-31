@@ -1,6 +1,9 @@
-micro-go
-micro-rust
-client
-micro/target/
-reference/
+/micro-go
+/micro-rust
+/micro-rust-before
+/before/
+/client
+/micro/target/
+/reference
+/diag/target/
 *.log

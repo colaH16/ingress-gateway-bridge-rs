@@ -1,42 +1,36 @@
 // SPDX-License-Identifier: Apache-2.0
+use crate::route::{HeaderModifier, HttpRouteFilter};
 use crate::{ANNOTATION_PREFIX, Result, reject};
-use serde::{Deserialize, Serialize};
-use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
-#[derive(Default, Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-struct Header {
-    name: String,
-    value: String,
-}
-#[derive(Default, Deserialize, Serialize)]
-#[serde(deny_unknown_fields)]
-struct Headers {
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    set: Vec<Header>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    add: Vec<Header>,
-    #[serde(default, skip_serializing_if = "Vec::is_empty")]
-    remove: Vec<String>,
-}
+use std::ops::Bound;
+/// Supported suffixes after `ANNOTATION_PREFIX`.
+const KEYS: [&str; 4] = [
+    "https-redirect",
+    "https-redirect-status-code",
+    "request-headers",
+    "response-headers",
+];
 pub struct Options {
     pub redirect: bool,
     pub status: u16,
-    pub filters: Vec<Value>,
+    pub filters: Vec<HttpRouteFilter>,
 }
 pub fn parse(annotations: &BTreeMap<String, String>) -> Result<Options> {
-    let keys = [
-        "https-redirect",
-        "https-redirect-status-code",
-        "request-headers",
-        "response-headers",
-    ]
-    .map(|k| format!("{ANNOTATION_PREFIX}{k}"));
-    let unknown: Vec<_> = annotations
-        .keys()
-        .filter(|k| k.starts_with(ANNOTATION_PREFIX) && !keys.contains(k))
-        .cloned()
-        .collect();
+    // Keys sharing the prefix are contiguous in a BTreeMap, so one range scan finds
+    // them without building the full key strings for each lookup.
+    let mut values: [Option<&str>; 4] = [None; 4];
+    let mut unknown = Vec::new();
+    for (key, value) in
+        annotations.range::<str, _>((Bound::Included(ANNOTATION_PREFIX), Bound::Unbounded))
+    {
+        let Some(suffix) = key.strip_prefix(ANNOTATION_PREFIX) else {
+            break;
+        };
+        match KEYS.iter().position(|k| *k == suffix) {
+            Some(index) => values[index] = Some(value),
+            None => unknown.push(key.as_str()),
+        }
+    }
     if !unknown.is_empty() {
         return Err(reject(&format!(
             "unknown bridge Ingress annotations: {}",
@@ -48,37 +42,45 @@ pub fn parse(annotations: &BTreeMap<String, String>) -> Result<Options> {
         status: 302,
         filters: Vec::new(),
     };
-    if let Some(v) = annotations.get(&keys[0]) {
-        match v.as_str() {
+    if let Some(v) = values[0] {
+        match v {
             "true" => o.redirect = true,
             "false" => (),
-            _ => return Err(reject(&format!("{} must be true or false", keys[0]))),
+            _ => {
+                return Err(reject(&format!(
+                    "{ANNOTATION_PREFIX}{} must be true or false",
+                    KEYS[0]
+                )));
+            }
         }
     }
-    if let Some(v) = annotations.get(&keys[1]) {
+    if let Some(v) = values[1] {
         if !o.redirect {
             return Err(reject(&format!(
-                "{} requires https-redirect: true",
-                keys[1]
+                "{ANNOTATION_PREFIX}{} requires https-redirect: true",
+                KEYS[1]
             )));
         }
-        o.status = match v.as_str() {
+        o.status = match v {
             "301" => 301,
             "302" => 302,
-            _ => return Err(reject(&format!("{} must be 301 or 302", keys[1]))),
+            _ => {
+                return Err(reject(&format!(
+                    "{ANNOTATION_PREFIX}{} must be 301 or 302",
+                    KEYS[1]
+                )));
+            }
         };
     }
-    for (key, kind, field) in [
-        (&keys[2], "RequestHeaderModifier", "requestHeaderModifier"),
-        (&keys[3], "ResponseHeaderModifier", "responseHeaderModifier"),
-    ] {
-        if let Some(v) = annotations.get(key) {
+    for (index, kind) in [(2, "RequestHeaderModifier"), (3, "ResponseHeaderModifier")] {
+        if let Some(v) = values[index] {
             let err = || {
                 reject(&format!(
-                    "{key} must be a valid JSON header filter with set/add/remove fields"
+                    "{ANNOTATION_PREFIX}{} must be a valid JSON header filter with set/add/remove fields",
+                    KEYS[index]
                 ))
             };
-            let h: Headers = serde_json::from_str(v).map_err(|_| err())?;
+            let h: HeaderModifier = serde_json::from_str(v).map_err(|_| err())?;
             if h.set.len() > 16
                 || h.add.len() > 16
                 || h.remove.len() > 16
@@ -105,7 +107,21 @@ pub fn parse(annotations: &BTreeMap<String, String>) -> Result<Options> {
                     return Err(err());
                 }
             }
-            o.filters.push(json!({"type":kind,field:h}));
+            o.filters.push(if index == 2 {
+                HttpRouteFilter {
+                    request_header_modifier: Some(h),
+                    request_redirect: None,
+                    response_header_modifier: None,
+                    kind,
+                }
+            } else {
+                HttpRouteFilter {
+                    request_header_modifier: None,
+                    request_redirect: None,
+                    response_header_modifier: Some(h),
+                    kind,
+                }
+            });
         }
     }
     Ok(o)

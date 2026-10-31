@@ -1,0 +1,27 @@
+# Diagnostics only; never used for headline timing. `bridge-diag` replaces the global
+# allocator with a counter (or, with `--features profile`, samples with pprof instead);
+# `bridge-stages` uses the system allocator and interleaves stage timings in one process.
+[package]
+name = "bridge-diag"
+version = "0.0.0"
+edition = "2024"
+publish = false
+
+[[bin]]
+name = "bridge-diag"
+path = "src/main.rs"
+
+[[bin]]
+name = "bridge-stages"
+path = "src/stages.rs"
+
+[features]
+profile = ["dep:pprof"]
+
+[dependencies]
+bridge = { package = "ingress-gateway-bridge-rs", path = "../../.." }
+serde_json = "1"
+pprof = { version = "0.15", optional = true, default-features = false, features = ["flamegraph"] }
+
+[profile.release]
+debug = true

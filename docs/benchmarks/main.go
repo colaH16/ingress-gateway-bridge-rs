@@ -23,6 +23,7 @@ type Input struct {
 
 var routesSink []gatewayv1.HTTPRoute
 var classSink string
+var bytesSink []byte
 
 func main() {
 	kind := flag.String("case", "convert1", "")
@@ -35,9 +36,11 @@ func main() {
 	}
 	var inputs []Input
 	size := 1
-	if *kind == "convert22" {
+	if *kind == "convert22" || *kind == "ser22" {
 		size = 22
 	}
+	// ser* adds the JSON encoding a typed client performs for each API request body.
+	ser := *kind == "ser1" || *kind == "ser22"
 	for i := 0; i < size; i++ {
 		var in Input
 		if e = json.Unmarshal(data, &in); e != nil {
@@ -62,6 +65,11 @@ func main() {
 				if e != nil {
 					panic(e)
 				}
+				if ser {
+					if bytesSink, e = json.Marshal(routesSink); e != nil {
+						panic(e)
+					}
+				}
 			}
 		}
 	}
@@ -79,6 +87,19 @@ func main() {
 				panic(e)
 			}
 		}
+	} else if ser {
+		for i := 0; i < *n; i++ {
+			for j := range inputs {
+				in := &inputs[j]
+				routesSink, e = translate.Convert(&in.Ingress, in.Binding, services, config.Config{ControllerName: config.ControllerName})
+				if e != nil {
+					panic(e)
+				}
+				if bytesSink, e = json.Marshal(routesSink); e != nil {
+					panic(e)
+				}
+			}
+		}
 	} else {
 		for i := 0; i < *n; i++ {
 			for j := range inputs {
@@ -92,5 +113,18 @@ func main() {
 	}
 	elapsed := time.Since(start)
 	runtime.ReadMemStats(&b)
-	json.NewEncoder(os.Stdout).Encode(map[string]any{"case": *kind, "iterations": *n, "ns_per_op": float64(elapsed.Nanoseconds()) / float64(*n), "allocs_per_op": float64(b.Mallocs-a.Mallocs) / float64(*n), "bytes_per_op": float64(b.TotalAlloc-a.TotalAlloc) / float64(*n), "gc_cycles": b.NumGC - a.NumGC, "gc_pause_total_us": float64(b.PauseTotalNs-a.PauseTotalNs) / 1000, "sample": map[string]any{"routes": routesSink}, "class": classSink})
+	// Longest stop-the-world pause among cycles in the window (ring buffer keeps 256).
+	maxPause := uint64(0)
+	for c := b.NumGC; c > a.NumGC && b.NumGC-c < 256; c-- {
+		maxPause = max(maxPause, b.PauseNs[(c+255)%256])
+	}
+	var sample any = map[string]any{"routes": routesSink}
+	if ser {
+		var decoded []any
+		if e = json.Unmarshal(bytesSink, &decoded); e != nil {
+			panic(e)
+		}
+		sample = map[string]any{"routes": decoded, "bytes": len(bytesSink)}
+	}
+	json.NewEncoder(os.Stdout).Encode(map[string]any{"case": *kind, "iterations": *n, "ns_per_op": float64(elapsed.Nanoseconds()) / float64(*n), "allocs_per_op": float64(b.Mallocs-a.Mallocs) / float64(*n), "bytes_per_op": float64(b.TotalAlloc-a.TotalAlloc) / float64(*n), "gc_cycles": b.NumGC - a.NumGC, "gc_pause_total_us": float64(b.PauseTotalNs-a.PauseTotalNs) / 1000, "gc_pause_max_us": float64(maxPause) / 1000, "gc_cpu_fraction_process": b.GCCPUFraction, "sample": sample, "class": classSink})
 }

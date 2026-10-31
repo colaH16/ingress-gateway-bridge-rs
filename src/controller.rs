@@ -2,9 +2,9 @@
 //! A serial, single-writer reconciler. Watches trigger a debounced resync;
 //! periodic resync also retries dependency failures and recovers missed events.
 use crate::{
-    ANNOTATION_PREFIX, Error, class_name, convert, dns,
-    model::{Binding, Input},
-    validate_binding,
+    CONTROLLER_ANNOTATION, Error, REDIRECT_ANNOTATION, class_name, dns,
+    model::{Binding, Ingress, Service},
+    translate, validate_binding,
 };
 use anyhow::{Context, Result, bail};
 use serde::Deserialize;
@@ -92,7 +92,7 @@ pub fn owns(route: &Value, ingress: &Value, controller: &str) -> bool {
                 && !ingress["metadata"]["uid"].is_null()
                 && o["uid"] == ingress["metadata"]["uid"]
         })
-        && route["metadata"]["annotations"][format!("{ANNOTATION_PREFIX}controller")] == controller
+        && route["metadata"]["annotations"][CONTROLLER_ANNOTATION] == controller
         && namespace(route) == namespace(ingress)
 }
 fn label_name(value: &str, allow_empty: bool) -> bool {
@@ -252,7 +252,8 @@ pub fn plan(ingress: &Value, cfg: &Config, s: &Snapshot) -> Result<Vec<Action>> 
         .filter(|r| owns(r, ingress, &cfg.controller_name))
         .collect();
     let remove = || owned.iter().map(|r| Action::Delete((*r).clone())).collect();
-    let parsed: crate::model::Ingress = serde_json::from_value(ingress.clone())?;
+    // Deserialize from the borrowed Value; cloning the whole object first is unnecessary.
+    let parsed = Ingress::deserialize(ingress)?;
     let class = match class_name(&parsed) {
         Ok(c) => c,
         Err(e) => {
@@ -274,14 +275,9 @@ pub fn plan(ingress: &Value, cfg: &Config, s: &Snapshot) -> Result<Vec<Action>> 
         .services
         .iter()
         .filter(|v| namespace(v) == namespace(ingress))
-        .map(|v| serde_json::from_value(v.clone()))
-        .collect::<std::result::Result<_, _>>()?;
-    let desired = match convert(&Input {
-        ingress: parsed,
-        binding: binding.clone(),
-        services,
-        controller_name: cfg.controller_name.clone(),
-    }) {
+        .map(Service::deserialize)
+        .collect::<std::result::Result<Vec<_>, _>>()?;
+    let desired = match translate(&parsed, binding, &services, &cfg.controller_name) {
         Ok(routes) => routes,
         Err(Error::Rejected(reason)) => {
             tracing::warn!(ingress=name(ingress),%reason,"source rejected; withdrawing owned routes");
@@ -289,45 +285,59 @@ pub fn plan(ingress: &Value, cfg: &Config, s: &Snapshot) -> Result<Vec<Action>> 
         }
         Err(e) => return Err(e.into()),
     };
-    let redirect =
-        ingress["metadata"]["annotations"][format!("{ANNOTATION_PREFIX}https-redirect")] == "true";
+    let redirect = ingress["metadata"]["annotations"][REDIRECT_ANNOTATION] == "true";
     check_parents(ingress, binding, s, redirect)?;
     let mut actions = Vec::new();
     let mut wanted = BTreeSet::new();
-    for route in desired {
-        wanted.insert(name(&route).to_string());
+    for route in &desired {
+        let (route_name, route_namespace) =
+            (route.metadata.name.as_str(), route.metadata.namespace);
+        wanted.insert(route_name);
         if let Some(previous) = s
             .routes
             .iter()
-            .find(|r| name(r) == name(&route) && namespace(r) == namespace(&route))
+            .find(|r| name(r) == route_name && namespace(r) == route_namespace)
         {
             anyhow::ensure!(
                 owns(previous, ingress, &cfg.controller_name),
-                "HTTPRoute name collision: {}/{}",
-                namespace(&route),
-                name(&route)
+                "HTTPRoute name collision: {route_namespace}/{route_name}"
             );
-            let mut next = previous.clone();
-            next["spec"] = route["spec"].clone();
-            for field in ["annotations", "labels"] {
-                if !next["metadata"][field].is_object() {
-                    next["metadata"][field] = json!({});
-                }
-                for (key, value) in route["metadata"][field]
-                    .as_object()
-                    .context("generated metadata")?
-                {
-                    next["metadata"][field][key] = value.clone();
-                }
+            // The existing object is compared as JSON because it carries server fields.
+            let spec = serde_json::to_value(&route.spec)?;
+            let generated = [
+                (
+                    "annotations",
+                    serde_json::to_value(&route.metadata.annotations)?,
+                ),
+                ("labels", serde_json::to_value(&route.metadata.labels)?),
+            ];
+            // Merging generated keys changes metadata only if a key is missing or different,
+            // or the field is not an object yet; clone the previous object only then.
+            let mut changed = previous["spec"] != spec;
+            for (field, values) in &generated {
+                let current = &previous["metadata"][*field];
+                changed |= !current.is_object()
+                    || values
+                        .as_object()
+                        .context("generated metadata")?
+                        .iter()
+                        .any(|(key, value)| current.get(key) != Some(value));
             }
-            if previous["spec"] != next["spec"]
-                || previous["metadata"]["labels"] != next["metadata"]["labels"]
-                || previous["metadata"]["annotations"] != next["metadata"]["annotations"]
-            {
+            if changed {
+                let mut next = previous.clone();
+                next["spec"] = spec;
+                for (field, values) in generated {
+                    if !next["metadata"][field].is_object() {
+                        next["metadata"][field] = json!({});
+                    }
+                    for (key, value) in values.as_object().context("generated metadata")? {
+                        next["metadata"][field][key] = value.clone();
+                    }
+                }
                 actions.push(Action::Update(next));
             }
         } else {
-            actions.push(Action::Create(route));
+            actions.push(Action::Create(serde_json::to_value(route)?));
         }
     }
     for route in owned {

@@ -1,0 +1,122 @@
+== inclusive (samples total 2971)
+100.00% __libc_start_main_alias_2
+100.00% bridge_diag::main
+100.00% std::panic::catch_unwind::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync, i32>
+100.00% std::rt::lang_start_internal
+100.00% std::panicking::catch_unwind::<i32, &dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync>
+100.00% std::rt::lang_start::<()>::{closure#0}
+100.00% std::rt::lang_start_internal::{closure#0}
+100.00% <fn() as core::ops::function::FnOnce<()>>::call_once
+100.00% std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+100.00% main
+100.00% std::panic::catch_unwind::<std::rt::lang_start_internal::{closure#0}, isize>
+100.00% __libc_start_call_main
+100.00% std::panicking::catch_unwind::do_call::<std::rt::lang_start_internal::{closure#0}, isize>
+100.00% std::panicking::catch_unwind::<isize, std::rt::lang_start_internal::{closure#0}>
+100.00% <&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync as core::ops::function::FnOnce<()>>::ca
+100.00% _start
+100.00% std::panicking::catch_unwind::do_call::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync,
+ 88.62% ingress_gateway_bridge_rs::convert
+ 35.44% <&serde_json::value::Value as serde_core::ser::Serialize>::serialize::<serde_json::value::ser::Serializer>
+ 35.44% <serde_json::value::Value as serde_core::ser::Serialize>::serialize::<serde_json::value::ser::Serializer>
+ 34.30% <serde_json::value::ser::SerializeMap as serde_core::ser::SerializeMap>::serialize_entry::<alloc::string::String, serde_json::value::Value>
+ 33.93% <serde_json::value::ser::SerializeMap as serde_core::ser::SerializeMap>::serialize_value::<serde_json::value::Value>
+ 32.25% <serde_json::value::ser::Serializer as serde_core::ser::Serializer>::collect_seq::<&alloc::vec::Vec<serde_json::value::Value>>
+ 31.77% serde_json::value::to_value::<&serde_json::value::Value>
+ 31.20% <serde_json::value::ser::SerializeVec as serde_core::ser::SerializeSeq>::serialize_element::<&serde_json::value::Value>
+ 31.20% <core::slice::iter::Iter<serde_json::value::Value> as core::iter::traits::iterator::Iterator>::try_for_each::<<serde_json::value::ser::Serializer as s
+ 31.20% <core::slice::iter::Iter<serde_json::value::Value> as core::iter::traits::iterator::Iterator>::try_fold::<(), core::iter::traits::iterator::Iterator::
+ 31.20% <serde_json::value::ser::Serializer as serde_core::ser::Serializer>::collect_seq::<&alloc::vec::Vec<serde_json::value::Value>>::{closure#0}
+ 31.20% core::iter::traits::iterator::Iterator::try_for_each::call::<&serde_json::value::Value, core::result::Result<(), serde_json::error::Error>, <serde_jso
+ 29.92% <&&serde_json::value::Value as serde_core::ser::Serialize>::serialize::<serde_json::value::ser::Serializer>
+ 29.92% serde_json::value::to_value::<&&serde_json::value::Value>
+ 24.27% _int_malloc
+ 22.99% <alloc::alloc::Global>::alloc_impl_runtime
+ 22.99% <alloc::alloc::Global>::alloc_impl
+ 22.99% <alloc::alloc::Global as core::alloc::Allocator>::allocate
+ 22.58% alloc::alloc::alloc
+ 22.08% core::ptr::drop_glue::<serde_json::value::Value>
+ 21.84% core::ptr::drop_glue::<alloc::collections::btree::map::IntoIter<alloc::string::String, serde_json::value::Value>>
+ 21.84% core::ptr::drop_glue::<alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>
+ 21.84% core::ptr::drop_glue::<serde_json::map::Map<alloc::string::String, serde_json::value::Value>>
+ 21.84% <alloc::collections::btree::map::IntoIter<alloc::string::String, serde_json::value::Value> as core::ops::drop::Drop>::drop
+ 21.84% <alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value> as core::ops::drop::Drop>::drop
+ 21.84% core::mem::drop::<alloc::collections::btree::map::IntoIter<alloc::string::String, serde_json::value::Value>>
+ 21.17% <serde_json::map::Map<alloc::string::String, serde_json::value::Value>>::insert
+ 20.97% <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Dying, alloc::string::Strin
+ 20.90% <u8 as <[_]>::to_vec_in::ConvertVec>::to_vec::<alloc::alloc::Global>
+ 20.90% <[u8]>::to_vec_in::<alloc::alloc::Global>
+ 20.73% <[u8]>::to_vec
+ 20.73% <[u8] as alloc::borrow::ToOwned>::to_owned
+ 20.73% <str as alloc::borrow::ToOwned>::to_owned
+ 20.70% <alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert
+ 20.63% <alloc::raw_vec::RawVecInner>::try_allocate_in
+ 20.63% <alloc::raw_vec::RawVecInner>::with_capacity_in
+ 20.09% <alloc::raw_vec::RawVec<u8>>::with_capacity_in
+ 20.09% <alloc::vec::Vec<u8>>::with_capacity_in
+ 19.59% core::ptr::drop_glue::<alloc::vec::Vec<serde_json::value::Value>>
+ 19.49% <alloc::vec::Vec<serde_json::value::Value> as core::ops::drop::Drop>::drop
+ 19.49% <*mut [serde_json::value::Value]>::drop_in_place
+ 19.49% core::ptr::drop_in_place::<[serde_json::value::Value]>
+ 19.49% core::ptr::drop_glue::<[serde_json::value::Value]>
+== self (samples total 2971)
+ 24.27% _int_malloc
+  8.52% <alloc::collections::btree::map::entry::VacantEntry<alloc::string::String, serde_json::value::Value>>::insert_entry
+  7.37% __free
+  6.13% _int_free_create_chunk
+  4.41% <core::mem::maybe_uninit::MaybeUninit<alloc::string::String>>::write
+  4.17% <serde_json::value::ser::SerializeMap as serde_core::ser::SerializeMap>::serialize_value::<serde_json::value::Value>
+  3.94% <u8 as core::slice::cmp::SlicePartialEq<u8>>::equal_same_length
+  2.59% _int_free_merge_chunk
+  2.59% malloc
+  1.78% <core::ptr::non_null::NonNull<alloc::string::String> as core::cmp::PartialEq>::eq
+  1.75% _int_free_chunk
+  1.72% <serde_json::value::ser::SerializeMap as serde_core::ser::SerializeMap>::end
+  1.58% <u8 as core::slice::cmp::SliceOrd>::compare
+  1.45% __memmove_avx_unaligned_erms
+  1.38% core::ptr::write::<serde_json::value::Value>
+  1.38% __memcmp_avx2_movbe
+  1.25% alloc::fmt::format::format_inner
+  1.14% <serde_json::value::ser::Serializer as serde_core::ser::Serializer>::collect_seq::<&alloc::vec::Vec<serde_json::value::Value>>
+  1.08% <alloc::collections::btree::map::IntoIter<alloc::string::String, serde_json::value::Value>>::dying_next
+  1.04% __rustc::__rust_alloc_zeroed
+  0.84% <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, alloc::string::String, serde_json::value::Value, alloc::collec
+  0.81% _int_free_maybe_trim
+  0.81% <serde_json::value::ser::SerializeMap as serde_core::ser::SerializeMap>::serialize_entry::<alloc::string::String, serde_json::value::Value>
+  0.81% alloc::alloc::alloc
+  0.74% core::ptr::drop_glue::<serde_json::value::Value>
+  0.71% <serde_json::value::Value as core::clone::Clone>::clone
+  0.64% alloc::alloc::dealloc_nonnull
+  0.61% <alloc::raw_vec::RawVec<u8> as core::ops::drop::Drop>::drop
+  0.61% core::ptr::drop_in_place::<serde_json::value::Value>
+  0.57% <serde_json::value::Value as serde_core::ser::Serialize>::serialize::<serde_json::value::ser::Serializer>
+  0.54% <serde_json::value::ser::SerializeVec as serde_core::ser::SerializeSeq>::end
+  0.50% _int_realloc
+  0.50% core::core_arch::x86::sha::_mm_sha256rnds2_epu32
+  0.47% <alloc::raw_vec::RawVecInner>::reserve
+  0.47% core::ptr::copy_nonoverlapping::<u8>
+  0.47% <alloc::collections::btree::map::BTreeMap<alloc::string::String, alloc::collections::btree::set_val::SetValZST>>::insert
+  0.47% <alloc::collections::btree::map::BTreeMap<alloc::string::String, serde_json::value::Value>>::insert
+  0.44% <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, alloc::string::String, serde_json::value::Value, alloc::collec
+  0.37% <core::option::Option<regex_automata::nfa::thompson::compiler::WhichCaptures>>::unwrap_or
+  0.37% <core::fmt::Arguments>::estimated_capacity
+  0.34% ingress_gateway_bridge_rs::route_name
+  0.34% core::ptr::drop_glue::<alloc::collections::btree::map::BTreeMap<&&str, i32>>
+  0.34% <isize as core::cmp::Ord>::cmp
+  0.34% <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Mut, alloc::string::String,
+  0.30% <core::fmt::rt::Argument>::fmt
+  0.30% <alloc::collections::btree::navigate::LazyLeafRange<alloc::collections::btree::node::marker::Dying, alloc::string::String, serde_json::value::Value>>:
+  0.27% <alloc::collections::btree::map::entry::Entry<&str, alloc::vec::Vec<serde_json::value::Value>>>::or_default
+  0.27% core::fmt::write
+  0.27% <core::fmt::Formatter>::new
+  0.24% <&serde_json::value::Value as serde_core::ser::Serialize>::serialize::<serde_json::value::ser::Serializer>
+  0.24% core::array::try_from_fn::<core::ops::try_trait::NeverShortCircuit<alloc::string::String>, 4, &mut core::array::drain::Drain<&str, <core::ops::try_tra
+  0.24% <core::fmt::Formatter>::pad_integral
+  0.24% core::slice::memchr::memchr_naive
+  0.20% <serde_json::value::ser::Serializer as serde_core::ser::Serializer>::serialize_str
+  0.17% <alloc::raw_vec::RawVecInner>::current_memory
+  0.17% <alloc::collections::btree::mem::replace::PanicGuard as core::ops::drop::Drop>::drop
+  0.17% __libc_malloc2
+  0.17% <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Immut, alloc::string::Strin
+  0.17% <alloc::collections::btree::node::Handle<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Dying, alloc::string::Strin
+  0.17% <usize as core::slice::index::SliceIndex<[core::mem::maybe_uninit::MaybeUninit<alloc::string::String>]>>::get_unchecked_mut

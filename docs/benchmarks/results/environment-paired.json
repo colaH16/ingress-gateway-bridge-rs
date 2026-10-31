@@ -1,0 +1,27 @@
+{
+  "date": "2026-10-31",
+  "platform": "Linux x86_64",
+  "exposed_vcpus": 10,
+  "host_cpu_model": "Genuine Intel(R) 0000 (virtual CPU; model unavailable)",
+  "exclusive_host": false,
+  "loadavg1_during_runs": "3.4-5.7 (recorded per process in paired.json)",
+  "concurrent_local_builds": false,
+  "micro_affinity": [2],
+  "rust_version": "1.99.1",
+  "go_micro_version": "go1.25.5",
+  "micro_go_gomaxprocs": 1,
+  "rounds": 7,
+  "variant_order": "rotated per round",
+  "variants": {
+    "go_gc": "micro-go, GOGC=100, GOMEMLIMIT=off",
+    "go_off": "micro-go, GOGC=off, GOMEMLIMIT=off (bounded trial, not a production setting)",
+    "rust_before": "micro-rust-before: main.rs with --cfg bridge_before against 3977e6187e377109ad3e8ff0d4990b35761ac836",
+    "rust_after": "micro-rust: main.rs against the working tree (typed HTTPRoute output)",
+    "rust_published": "the results/micro.json harness binary against 3977e61, class/convert only (harness-change check)"
+  },
+  "bridge_rust_before_source": "3977e6187e377109ad3e8ff0d4990b35761ac836",
+  "bridge_go_source": "41b4b395f37abd0b03ba858f1da6c32c02834813",
+  "input": "docs/benchmarks/input.json with name/uid/host rewritten to bench-N",
+  "peak_rss_note": "ru_maxrss survives exec, so values near 13.3 MiB are the forked Python parent's floor; only GOGC=off exceeds it",
+  "production_requests": false
+}

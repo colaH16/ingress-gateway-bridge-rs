@@ -6,7 +6,7 @@ fn fixture() -> (Value, Config, Snapshot) {
         .unwrap()["ingress"]
         .clone();
     let cfg:Config=serde_json::from_value(json!({"classes":{"public-apps":{"parentRefs":[{"name":"public","namespace":"gateway-system","sectionName":"https"}]}}})).unwrap();
-    let mut route = convert(&input).unwrap().remove(0);
+    let mut route = serde_json::to_value(&convert(&input).unwrap()[0]).unwrap();
     route["metadata"]["uid"] = json!("route-uid");
     route["metadata"]["resourceVersion"] = json!("12");
     let s = Snapshot {
@@ -114,4 +114,65 @@ fn invalid_namespace_selectors_do_not_authorize_routes() {
             json!({"namespaces":{"from":"Selector","selector":selector}});
         assert!(plan(&i, &c, &s).is_err());
     }
+}
+
+#[test]
+fn metadata_merge_matches_full_object_comparison() {
+    // Missing generated labels: update adds them and keeps every other field.
+    let (i, c, mut s) = fixture();
+    s.routes[0]["metadata"]
+        .as_object_mut()
+        .unwrap()
+        .remove("labels");
+    s.routes[0]["status"] = json!({"parents":[]});
+    let actions = plan(&i, &c, &s).unwrap();
+    let [Action::Update(next)] = actions.as_slice() else {
+        panic!("{actions:?}");
+    };
+    assert_eq!(
+        next["metadata"]["labels"],
+        json!({"app.kubernetes.io/managed-by":"ingress-gateway-bridge"})
+    );
+    assert_eq!(next["status"], json!({"parents":[]}));
+    assert_eq!(next["metadata"]["uid"], "route-uid");
+    // Changed generated annotation: restored, foreign annotation retained.
+    let (i, c, mut s) = fixture();
+    let annotations = &mut s.routes[0]["metadata"]["annotations"];
+    annotations["ingress-gateway-bridge.colah16.github.io/source"] = json!("apps/other");
+    annotations["example.test/keep"] = json!("yes");
+    let actions = plan(&i, &c, &s).unwrap();
+    let [Action::Update(next)] = actions.as_slice() else {
+        panic!("{actions:?}");
+    };
+    assert_eq!(
+        next["metadata"]["annotations"]["ingress-gateway-bridge.colah16.github.io/source"],
+        "apps/website"
+    );
+    assert_eq!(next["metadata"]["annotations"]["example.test/keep"], "yes");
+    // A non-object field is replaced by the generated keys.
+    let (i, c, mut s) = fixture();
+    s.routes[0]["metadata"]["labels"] = json!("bad");
+    assert!(matches!(
+        &plan(&i, &c, &s).unwrap()[..],
+        [Action::Update(_)]
+    ));
+    // Extra foreign labels alone are not drift.
+    let (i, c, mut s) = fixture();
+    s.routes[0]["metadata"]["labels"]["team"] = json!("web");
+    assert!(plan(&i, &c, &s).unwrap().is_empty());
+}
+
+#[test]
+fn created_route_is_the_serialized_translation() {
+    let (i, c, mut s) = fixture();
+    let expected = s.routes.remove(0);
+    let actions = plan(&i, &c, &s).unwrap();
+    let [Action::Create(created)] = actions.as_slice() else {
+        panic!("{actions:?}");
+    };
+    let mut expected = expected;
+    let metadata = expected["metadata"].as_object_mut().unwrap();
+    metadata.remove("uid");
+    metadata.remove("resourceVersion");
+    assert_eq!(created, &expected);
 }

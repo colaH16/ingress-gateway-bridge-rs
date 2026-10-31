@@ -1,0 +1,5 @@
+{"stage":"convert1(+drop)","allocs_per_op":12,"reallocs_per_op":0,"bytes_per_op":2207}
+{"stage":"convert22(+drop)","allocs_per_op":264,"reallocs_per_op":0,"bytes_per_op":48590}
+{"stage":"convert1+to_vec","allocs_per_op":13,"reallocs_per_op":3,"bytes_per_op":3231}
+{"stage":"options::parse(empty annotations)","allocs_per_op":0,"reallocs_per_op":0,"bytes_per_op":0}
+{"stage":"route_name","allocs_per_op":1,"reallocs_per_op":0,"bytes_per_op":31}

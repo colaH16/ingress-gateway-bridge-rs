@@ -1,0 +1,113 @@
+== inclusive (samples total 1213)
+100.00% std::rt::lang_start_internal
+100.00% _start
+100.00% std::panicking::catch_unwind::<isize, std::rt::lang_start_internal::{closure#0}>
+100.00% bridge_diag::main
+100.00% std::rt::lang_start_internal::{closure#0}
+100.00% <&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync as core::ops::function::FnOnce<()>>::ca
+100.00% std::panic::catch_unwind::<std::rt::lang_start_internal::{closure#0}, isize>
+100.00% std::sys::backtrace::__rust_begin_short_backtrace::<fn(), ()>
+100.00% std::panicking::catch_unwind::<i32, &dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync>
+100.00% __libc_start_main_alias_2
+100.00% __libc_start_call_main
+100.00% std::panicking::catch_unwind::do_call::<std::rt::lang_start_internal::{closure#0}, isize>
+100.00% std::panic::catch_unwind::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync, i32>
+100.00% std::rt::lang_start::<()>::{closure#0}
+100.00% main
+100.00% <fn() as core::ops::function::FnOnce<()>>::call_once
+100.00% std::panicking::catch_unwind::do_call::<&dyn core::ops::function::Fn<(), Output = i32> + core::panic::unwind_safe::RefUnwindSafe + core::marker::Sync,
+ 94.39% ingress_gateway_bridge_rs::translate
+ 94.39% ingress_gateway_bridge_rs::convert
+ 19.62% ingress_gateway_bridge_rs::route_name
+ 12.86% sha2::sha256::x86::digest_blocks
+ 12.86% <sha2::core_api::Sha256VarCore as digest::core_api::VariableOutputCore>::finalize_variable_core::{closure#0}
+ 12.86% <digest::core_api::wrapper::CoreWrapper<digest::core_api::ct_variable::CtVariableCoreWrapper<sha2::core_api::Sha256VarCore, typenum::uint::UInt<typenu
+ 12.86% <block_buffer::BlockBuffer<typenum::uint::UInt<typenum::uint::UInt<typenum::uint::UInt<typenum::uint::UInt<typenum::uint::UInt<typenum::uint::UInt<typ
+ 12.86% <sha2::core_api::Sha256VarCore as digest::core_api::VariableOutputCore>::finalize_variable_core
+ 12.86% <digest::core_api::wrapper::CoreWrapper<digest::core_api::ct_variable::CtVariableCoreWrapper<sha2::core_api::Sha256VarCore, typenum::uint::UInt<typenu
+ 12.86% <digest::core_api::ct_variable::CtVariableCoreWrapper<sha2::core_api::Sha256VarCore, typenum::uint::UInt<typenum::uint::UInt<typenum::uint::UInt<typen
+ 12.86% core::core_arch::x86::sse2::_mm_add_epi32
+ 12.86% <digest::core_api::wrapper::CoreWrapper<digest::core_api::ct_variable::CtVariableCoreWrapper<sha2::core_api::Sha256VarCore, typenum::uint::UInt<typenu
+ 12.86% <block_buffer::BlockBuffer<typenum::uint::UInt<typenum::uint::UInt<typenum::uint::UInt<typenum::uint::UInt<typenum::uint::UInt<typenum::uint::UInt<typ
+  8.41% <alloc::alloc::Global as core::alloc::Allocator>::allocate
+  8.41% <alloc::alloc::Global>::alloc_impl
+  8.41% <alloc::alloc::Global>::alloc_impl_runtime
+  8.16% alloc::alloc::alloc
+  7.42% __memmove_avx_unaligned_erms
+  6.35% malloc
+  5.61% <alloc::vec::Vec<ingress_gateway_bridge_rs::route::HttpRoute> as core::ops::drop::Drop>::drop
+  5.61% <*mut [ingress_gateway_bridge_rs::route::HttpRoute]>::drop_in_place
+  5.61% core::ptr::drop_glue::<[ingress_gateway_bridge_rs::route::HttpRoute]>
+  5.61% core::ptr::drop_in_place::<[ingress_gateway_bridge_rs::route::HttpRoute]>
+  5.61% core::ptr::drop_glue::<ingress_gateway_bridge_rs::route::HttpRoute>
+  5.61% core::ptr::drop_glue::<alloc::vec::Vec<ingress_gateway_bridge_rs::route::HttpRoute>>
+  5.61% core::mem::drop::<alloc::vec::Vec<ingress_gateway_bridge_rs::route::HttpRoute>>
+  5.44% ingress_gateway_bridge_rs::path_match
+  5.44% <regex_automata::meta::regex::Regex>::search_half
+  5.44% <regex::regex::string::Regex>::is_match
+  5.44% ingress_gateway_bridge_rs::literal_path
+  5.44% <regex::regex::string::Regex>::is_match_at
+  5.36% <alloc::raw_vec::RawVecInner>::deallocate
+  4.78% core::ptr::drop_glue::<alloc::vec::Vec<ingress_gateway_bridge_rs::route::HttpRouteRule>>
+  4.78% core::ptr::drop_glue::<ingress_gateway_bridge_rs::route::HttpRouteRule>
+  4.78% core::ptr::drop_in_place::<[ingress_gateway_bridge_rs::route::HttpRouteRule]>
+  4.78% core::ptr::drop_glue::<alloc::collections::btree::map::BTreeMap<&&str, i32>>
+  4.78% alloc::alloc::dealloc_nonnull
+  4.78% <*mut [ingress_gateway_bridge_rs::route::HttpRouteRule]>::drop_in_place
+  4.78% <alloc::alloc::Global as core::alloc::Allocator>::deallocate
+  4.78% <alloc::alloc::Global>::deallocate_impl
+  4.78% <alloc::alloc::Global>::deallocate_impl_runtime
+  4.78% core::ptr::drop_glue::<ingress_gateway_bridge_rs::route::RouteSpec>
+  4.78% core::ptr::drop_glue::<[ingress_gateway_bridge_rs::route::HttpRouteRule]>
+== self (samples total 1213)
+ 25.23% ingress_gateway_bridge_rs::translate
+ 12.86% core::core_arch::x86::sse2::_mm_add_epi32
+  7.42% __memmove_avx_unaligned_erms
+  6.35% malloc
+  5.19% ingress_gateway_bridge_rs::route_name
+  4.53% __free
+  3.96% ingress_gateway_bridge_rs::options::parse
+  3.96% core::ptr::drop_glue::<alloc::collections::btree::map::BTreeMap<&&str, i32>>
+  3.87% <alloc::collections::btree::map::entry::VacantEntry<&str, alloc::vec::Vec<ingress_gateway_bridge_rs::route::HttpRouteRule>>>::insert_entry
+  3.13% <core::slice::iter::Iter<u8> as core::iter::traits::iterator::Iterator>::next
+  3.13% <alloc::collections::btree::map::entry::Entry<&&str, i32>>::or_insert
+  2.14% alloc::str::join_generic_copy::<str, u8, &str>
+  1.98% <core::result::Result<core::option::Option<regex_automata::util::search::HalfMatch>, regex_automata::util::search::MatchError> as core::ops::try_trait
+  1.73% <core::option::Option<regex_automata::util::prefilter::Prefilter>>::as_ref
+  1.48% alloc::alloc::alloc
+  1.40% <regex_automata::meta::regex::RegexInfo>::is_impossible
+  1.32% __rustc::__rust_alloc_zeroed
+  1.15% <core::mem::maybe_uninit::MaybeUninit<(&str, &str, &str)>>::write
+  0.99% alloc::alloc::dealloc_nonnull
+  0.82% <alloc::raw_vec::RawVecInner>::current_memory
+  0.74% core::ptr::read::<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Immut, (&str, &str, &str), (&str, core::option::Op
+  0.58% <alloc::collections::btree::map::BTreeMap<(&str, &str, &str), (&str, core::option::Option<i32>)>>::entry
+  0.58% <*const ingress_gateway_bridge_rs::model::Parent>::offset_from_unsigned
+  0.41% core::slice::memchr::memchr_naive
+  0.41% <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Dying, &str, alloc::vec::Vec<ingress_gateway_bridge_rs::route::Http
+  0.33% <regex_automata::util::pool::inner::Pool<regex_automata::meta::regex::Cache, alloc::boxed::Box<dyn core::ops::function::Fn<(), Output = regex_automata
+  0.33% core::ptr::read::<alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Immut, &&str, i32, alloc::collections::btree::node
+  0.33% <usize>::repeat_u8
+  0.33% core::ptr::copy_nonoverlapping::<core::mem::maybe_uninit::MaybeUninit<u8>>
+  0.25% core::ptr::drop_glue::<alloc::vec::Vec<ingress_gateway_bridge_rs::route::HttpRouteFilter>>
+  0.25% core::slice::memchr::memchr
+  0.25% <usize>::overflowing_mul
+  0.25% core::ptr::write::<ingress_gateway_bridge_rs::route::HttpRoute>
+  0.25% core::ptr::copy_nonoverlapping::<u8>
+  0.16% core::ptr::read::<alloc::vec::Vec<ingress_gateway_bridge_rs::route::HttpRouteRule>>
+  0.16% <alloc::raw_vec::RawVecInner>::capacity
+  0.16% <alloc::collections::btree::map::IntoIter<(&str, &str, &str), (&str, core::option::Option<i32>)>>::dying_next
+  0.16% <alloc::collections::btree::map::IntoIter<&str, alloc::vec::Vec<ingress_gateway_bridge_rs::route::HttpRouteRule>> as core::ops::drop::Drop>::drop
+  0.16% <alloc::raw_vec::RawVecInner>::finish_grow
+  0.16% <&regex_automata::dfa::dense::DFA<alloc::vec::Vec<u32>> as regex_automata::dfa::automaton::Automaton>::start_state_forward
+  0.16% <alloc::collections::btree::map::IntoIter<&str, alloc::vec::Vec<ingress_gateway_bridge_rs::route::HttpRouteRule>>>::dying_next
+  0.16% <regex_automata::dfa::dense::StartTable<alloc::vec::Vec<u32>>>::start
+  0.08% <str>::trim_end_matches::<char>
+  0.08% <alloc::collections::btree::map::BTreeMap<&&str, i32>>::entry
+  0.08% <alloc::raw_vec::RawVecInner>::grow_amortized
+  0.08% <alloc::raw_vec::RawVecInner>::try_allocate_in
+  0.08% <alloc::collections::btree::node::NodeRef<alloc::collections::btree::node::marker::Dying, &&str, i32, alloc::collections::btree::node::marker::LeafOrI
+  0.08% <alloc::raw_vec::RawVec<ingress_gateway_bridge_rs::route::HttpRouteFilter> as core::ops::drop::Drop>::drop
+  0.08% <alloc::collections::btree::map::IntoIter<&str, alloc::vec::Vec<ingress_gateway_bridge_rs::route::HttpRouteRule>> as core::iter::traits::iterator::Ite
+  0.08% <alloc::collections::btree::map::BTreeMap<&str, alloc::vec::Vec<ingress_gateway_bridge_rs::route::HttpRouteRule>> as core::ops::drop::Drop>::drop
+  0.08% <alloc::collections::btree::map::entry::VacantEntry<(&str, &str, &str), (&str, core::option::Option<i32>)>>::insert
