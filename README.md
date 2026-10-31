@@ -8,6 +8,8 @@ Go `ingress-gateway-bridge`의 변환 코어를 Rust로 옮기는 비교 학습 
 운영 Go 기준: `41b4b395f37abd0b03ba858f1da6c32c02834813`.
 컨트롤러 실행과 제약은 [운영 가이드](docs/operations.md)를 참고하세요.
 
+**운영 상태:** 2026-10-31부터 개인 Kubernetes 클러스터에서 Rust controller로 HTTPRoute 22개를 관리합니다. [운영 검증 기록](docs/operations.md)을 참고하세요.
+
 학습 순서: **ingress-gateway-bridge → gotalk → KubeShelf**.
 
 ## 실행
@@ -99,4 +101,4 @@ Go와 Rust를 비교한 다음 gotalk, 마지막에 KubeShelf로 진행합니다
 Go 원본: https://github.com/colaH16/ingress-gateway-bridge
 
 원본의 Apache-2.0 라이선스를 보존합니다. 원본 번역 알고리즘을 바탕으로 작성한 Rust 학습 포트이며,
-새로운 독립 알고리즘이나 운영 검증 완료 controller로 소개하지 않습니다.
+변환 의미는 Go 원본에서 이어받았으며, 실제 검증 범위와 운영 기록은 운영 가이드에 명시합니다.

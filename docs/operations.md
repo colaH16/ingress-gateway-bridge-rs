@@ -50,7 +50,13 @@ Kubernetes Warning Event 및 Prometheus metrics endpoint는 아직 제공하지 
 - 운영 설정의 읽기 전용 비교 결과: Ingress 66개, HTTPRoute 22개, 변경 계획 0건, 오류 0건 (2026-10-31).
 - 실제 클러스터 별도 테스트 class에서 생성/named port, Prefix/Exact HTTPS 6경로, 멱등성, 재시작 UID 유지, 갱신, 의존성 오류 보존, 미지원 입력 철회, class 삭제/복구, HTTP→HTTPS, response header, stale redirect 정리, Ingress 삭제 GC를 검증했습니다.
 - 테스트 정리 후 기존 운영 Route 22개 UID/spec이 모두 동일했습니다.
-- 최종 운영 적용 결과는 완료 후 별도로 기록합니다.
+- 2026-10-31 최초 운영 전환 완료: 소스 `d38bc8b87abf79ea2f264c42970732318b7e9ae3`, 이미지 digest `sha256:6955b788b63f81fc63957b39a3d08056eb31d1e119e1b676a39226176f874543`.
+- [GitHub Actions 검증·이미지 빌드](https://github.com/colaH16/ingress-gateway-bridge-rs/actions/runs/41160897013)가 성공했고 공개 이미지 pull을 확인했습니다.
+- 운영 ServiceAccount를 사용하는 이미지 dry-run Job도 변경 0건/오류 0건으로 완료했습니다.
+- Fleet에서 Rust 단일 replica로 교체 후 1/1 Ready, 재시작 0회와 오류 없는 재조정을 확인했습니다.
+- 배포된 Rust Pod가 임시 Ingress의 Route 생성·갱신을 실제 수행하고 HTTPS 경로 변경이 반영되는 것을 확인했습니다. 삭제 후 GC와 테스트 리소스 정리도 확인했습니다.
+- 기존 HTTPRoute 22개, Gateway 3개, Ingress 66개의 UID/spec을 보존했고, 15개 읽기 전용 HTTP 응답 코드가 전환 전과 일치했습니다.
+- 인증 서비스의 비인증 리다이렉트 응답은 로그인 후의 애플리케이션 동작 검증을 의미하지 않습니다. 이 기록은 전환 시점 검증이며 장기간 안정성이나 연속 무중단 측정 결과는 아닙니다.
 
 ## 전환과 복구
 
@@ -59,3 +65,16 @@ Kubernetes Warning Event 및 Prometheus metrics endpoint는 아직 제공하지 
 교체 전후 Route UID/spec을 비교하고, 실제 서비스 health와 Route Accepted/ResolvedRefs의 observedGeneration을 확인합니다.
 실패하면 GitOps에서 Go 이미지 digest와 Go 인자로 되돌립니다. Route owner와 이름이 같아 Go가 이어서 관리합니다.
 CLI나 controller를 운영 writer와 동시에 쓰기 모드로 실행하지 마세요.
+
+## 시작 옵션과 watch 연결
+
+이미지 ENTRYPOINT는 `/bridge-controller`입니다. Deployment의 `args`가 이
+실행 파일에 전달되며 환경변수로 자동 변환되지 않습니다. 현재 운영 설정은
+명령행 옵션과 ConfigMap의 설정 파일을 사용하고, `RUST_LOG`는 로그 필터용 환경변수입니다.
+`--single-writer=true`는 단일 writer 운영 전제를 명시하는 시작 확인 옵션입니다.
+다른 writer를 차단하는 잠금이 아니며 replicas=1/Recreate와 운영 절차로 보장합니다.
+
+초기 운영 로그에서 45초 HTTP read timeout이 정상 watch를 끊는 현상을 발견했습니다.
+후속 수정은 watch의 기본 서버 timeout(290초)보다 긴 330초 read timeout을 사용하고,
+일반 snapshot/apply 작업에는 별도 45초 deadline을 유지합니다.
+watch 오류는 재접속되며 주기적 재조정도 계속 실행되지만, 불필요한 연결 종료를 줄이는 것이 수정 목적입니다.

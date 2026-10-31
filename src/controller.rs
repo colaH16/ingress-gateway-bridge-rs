@@ -412,10 +412,17 @@ pub mod runtime {
         }
         Ok(())
     }
+    async fn bounded<T>(operation: impl std::future::Future<Output = Result<T>>) -> Result<T> {
+        tokio::time::timeout(Duration::from_secs(45), operation)
+            .await
+            .context("Kubernetes operation exceeded 45 seconds")?
+    }
     pub async fn run(cfg: Config, dry_run: bool, once: bool, health: &str) -> Result<()> {
         let mut kc = kube::Config::infer().await?;
         kc.connect_timeout = Some(Duration::from_secs(10));
-        kc.read_timeout = Some(Duration::from_secs(45));
+        // kube watcher requests run for up to 290s; ordinary operations have
+        // their own shorter deadline below. Do not interrupt healthy watch bodies.
+        kc.read_timeout = Some(Duration::from_secs(330));
         let client = Client::try_from(kc)?;
         let start = Instant::now();
         let last = Arc::new(AtomicU64::new(0));
@@ -456,7 +463,7 @@ pub mod runtime {
         loop {
             let mut changes = 0;
             let mut errors = 0;
-            match snapshot(client.clone()).await {
+            match bounded(snapshot(client.clone())).await {
                 Ok(s) => {
                     for ingress in &s.ingresses {
                         match plan(ingress, &cfg, &s) {
@@ -472,7 +479,8 @@ pub mod runtime {
                                     );
                                 }
                                 if !dry_run
-                                    && let Err(e) = apply(client.clone(), ingress, &actions).await
+                                    && let Err(e) =
+                                        bounded(apply(client.clone(), ingress, &actions)).await
                                 {
                                     errors += 1;
                                     tracing::error!(namespace=namespace(ingress),ingress=name(ingress),error=%e,"apply failed; retry scheduled");
