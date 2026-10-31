@@ -1,9 +1,9 @@
 # Ad-hoc noise checks after the paired run (taskset -c 2, convert1 n=100000, ns/op per process). Not used for headline numbers.
 ## micro-rust (after), 12 processes each: default ASLR vs setarch -R
 == aslr
-672 623 610 630 627 652 670 632 618 627 626 647 
+672 623 610 630 627 652 670 632 618 627 626 647
 == norandom
-621 341 721 617 709 758 719 621 620 355 808 718 
+621 341 721 617 709 758 719 621 620 355 808 718
 ## alternating after / before / Go GOGC=100 processes
 micro-rust 687  micro-rust-before 6214  go 1954
 micro-rust 292  micro-rust-before 6091  go 1958
