@@ -121,3 +121,13 @@ Rust 전체 검사와 Go 86개 비교를 통과했습니다. 환경변수 전용
 이미지 기본값과 env만 사용한 preflight Job이 변경 0건/오류 0건으로 완료됐고,
 배포된 Pod의 임시 Route 생성·갱신·HTTPS 응답과 삭제 후 GC를 다시 검증했습니다.
 기존 Route 22개·Gateway 3개·Ingress 66개의 UID/spec과 HTTP 15개 응답 코드를 보존했습니다.
+
+
+## typed 출력 최적화 운영 반영 (2026-10-31)
+
+- 소스 `eaffd8a643ac3a491dc7631633e97163a0a20d3c`, [CI 41177518769](https://github.com/colaH16/ingress-gateway-bridge-rs/actions/runs/41177518769) 성공.
+- 이미지 `ghcr.io/colah16/ingress-gateway-bridge-rs@sha256:8333af45e82e37651e6e4bcea24082f7cb286b3491f7d22510b05983cf1b5991`.
+- Rust 테스트 23개, Go 비교 86개 사례, 변경 전후 CLI 출력 90개 사례 바이트 동일, 종료·이벤트 격리 회귀 검증 통과.
+- 별도 `BRIDGE_DRY_RUN=true` Pod에서 Route 22개·변경 0·오류 0 확인 후 원본 GitOps의 이미지 다이제스트만 변경했습니다.
+- 운영 writer 1/1 Ready, 재시작 0. Route 22개의 UID·spec과 이미지 외 Pod 사양이 전환 전후 동일합니다. 운영 재조정도 변경 0·오류 0입니다. 시험 Pod는 정리했습니다.
+- [성능 결과](performance.md)는 합성 입력의 CPU 작업 측정입니다. 운영 사용자 요청 지연이나 전체 Go/Rust 컨트롤러 성능 비교로 해석하지 않습니다.
