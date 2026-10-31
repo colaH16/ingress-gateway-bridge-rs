@@ -12,6 +12,20 @@ Go `ingress-gateway-bridge`의 변환 코어를 Rust로 옮기는 비교 학습 
 
 학습 순서: **ingress-gateway-bridge → gotalk → KubeShelf**.
 
+## 성능 비교: Go GC 켬 · GC 끔 · Rust
+
+2026-10-31 공유 Linux x86_64 VM에서 순수 변환 함수를 각각 7회 측정한 중앙값입니다. **현재 Rust 포트는 이 실험에서 더 느렸습니다.** GC가 없다는 장점이 전체 변환의 속도 향상을 보장하지는 않았습니다.
+
+| 작업 | Go GC 켬 | Go GC 끔 | Rust | Rust / Go GC 켬 시간 |
+|---|---:|---:|---:|---:|
+| Ingress class 조회 | 2.41 ns/op | 2.45 ns/op | 7.82 ns/op | 3.24배 |
+| Ingress 1개 → HTTPRoute 변환 | 2.22 μs/op | 2.84 μs/op | 6.70 μs/op | 3.01배 |
+| 합성 Ingress 22개 묶음 변환 | 49.98 μs/op | 61.95 μs/op | 155.92 μs/op | 3.12배 |
+
+22개 묶음의 절대 차이는 약 **106μs**입니다. Go는 전용 HTTPRoute 구조체, Rust는 `serde_json::Value`를 구성하므로 자료구조·할당 방식이 다릅니다. 이는 최적화 후보이며, 원인별 기여율은 아직 프로파일링하지 않았습니다. Go GC를 끈 경우도 더 빨라지지 않았습니다. class 조회는 Go 측정에서도 할당 0·GC 0회여서 GC 차이를 보여주는 사례가 아닙니다.
+
+컨트롤러는 사용자 HTTP 트래픽을 중계하지 않습니다. 이 수치는 변환 작업의 비용이며 서비스 응답 시간이나 Kubernetes reconcile 전체 시간을 뜻하지 않습니다. Go/Rust 출력 비교, 원시 결과·범위·GC 횟수·재현 코드는 [상세 성능 기록](docs/performance.md)에 있습니다.
+
 ## 실행
 
 Rust stable(Cargo 포함)을 설치한 환경에서:

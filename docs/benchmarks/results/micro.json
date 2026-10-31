@@ -1,0 +1,611 @@
+[
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 9.08097645,
+    "variant": "go_gc",
+    "round": 1
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.50867805,
+    "variant": "go_off",
+    "round": 1
+  },
+  {
+    "case": "class",
+    "iterations": 20000000,
+    "ns_per_op": 8.2757144,
+    "variant": "rust",
+    "round": 1
+  },
+  {
+    "allocs_per_op": 34.00602,
+    "bytes_per_op": 2776.44032,
+    "case": "convert1",
+    "gc_cycles": 48,
+    "gc_pause_total_us": 368.481,
+    "iterations": 50000,
+    "ns_per_op": 2307.96328,
+    "variant": "go_gc",
+    "round": 1
+  },
+  {
+    "allocs_per_op": 34.00012,
+    "bytes_per_op": 2776.0088,
+    "case": "convert1",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 50000,
+    "ns_per_op": 2903.87358,
+    "variant": "go_off",
+    "round": 1
+  },
+  {
+    "case": "convert1",
+    "iterations": 50000,
+    "ns_per_op": 7117.38294,
+    "variant": "rust",
+    "round": 1
+  },
+  {
+    "allocs_per_op": 748.1322,
+    "bytes_per_op": 61081.6832,
+    "case": "convert22",
+    "gc_cycles": 108,
+    "gc_pause_total_us": 920.591,
+    "iterations": 5000,
+    "ns_per_op": 53829.135,
+    "variant": "go_gc",
+    "round": 1
+  },
+  {
+    "allocs_per_op": 748.0012,
+    "bytes_per_op": 61072.088,
+    "case": "convert22",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 5000,
+    "ns_per_op": 67420.793,
+    "variant": "go_off",
+    "round": 1
+  },
+  {
+    "case": "convert22",
+    "iterations": 5000,
+    "ns_per_op": 154896.6108,
+    "variant": "rust",
+    "round": 1
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.5470937,
+    "variant": "go_off",
+    "round": 2
+  },
+  {
+    "case": "class",
+    "iterations": 20000000,
+    "ns_per_op": 8.12783425,
+    "variant": "rust",
+    "round": 2
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.2896442,
+    "variant": "go_gc",
+    "round": 2
+  },
+  {
+    "allocs_per_op": 34.00012,
+    "bytes_per_op": 2776.0088,
+    "case": "convert1",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 50000,
+    "ns_per_op": 2763.24656,
+    "variant": "go_off",
+    "round": 2
+  },
+  {
+    "case": "convert1",
+    "iterations": 50000,
+    "ns_per_op": 6623.71852,
+    "variant": "rust",
+    "round": 2
+  },
+  {
+    "allocs_per_op": 34.006,
+    "bytes_per_op": 2776.44,
+    "case": "convert1",
+    "gc_cycles": 49,
+    "gc_pause_total_us": 362.195,
+    "iterations": 50000,
+    "ns_per_op": 2225.51216,
+    "variant": "go_gc",
+    "round": 2
+  },
+  {
+    "allocs_per_op": 748.0012,
+    "bytes_per_op": 61072.088,
+    "case": "convert22",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 5000,
+    "ns_per_op": 57448.9916,
+    "variant": "go_off",
+    "round": 2
+  },
+  {
+    "case": "convert22",
+    "iterations": 5000,
+    "ns_per_op": 155922.684,
+    "variant": "rust",
+    "round": 2
+  },
+  {
+    "allocs_per_op": 748.1322,
+    "bytes_per_op": 61081.6832,
+    "case": "convert22",
+    "gc_cycles": 108,
+    "gc_pause_total_us": 793.334,
+    "iterations": 5000,
+    "ns_per_op": 49977.2178,
+    "variant": "go_gc",
+    "round": 2
+  },
+  {
+    "case": "class",
+    "iterations": 20000000,
+    "ns_per_op": 7.81685435,
+    "variant": "rust",
+    "round": 3
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.4139675,
+    "variant": "go_gc",
+    "round": 3
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.3653478,
+    "variant": "go_off",
+    "round": 3
+  },
+  {
+    "case": "convert1",
+    "iterations": 50000,
+    "ns_per_op": 6430.14,
+    "variant": "rust",
+    "round": 3
+  },
+  {
+    "allocs_per_op": 34.00602,
+    "bytes_per_op": 2776.44032,
+    "case": "convert1",
+    "gc_cycles": 49,
+    "gc_pause_total_us": 366.817,
+    "iterations": 50000,
+    "ns_per_op": 2197.58296,
+    "variant": "go_gc",
+    "round": 3
+  },
+  {
+    "allocs_per_op": 34.00012,
+    "bytes_per_op": 2776.0088,
+    "case": "convert1",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 50000,
+    "ns_per_op": 2886.7567,
+    "variant": "go_off",
+    "round": 3
+  },
+  {
+    "case": "convert22",
+    "iterations": 5000,
+    "ns_per_op": 151588.776,
+    "variant": "rust",
+    "round": 3
+  },
+  {
+    "allocs_per_op": 748.1322,
+    "bytes_per_op": 61081.6832,
+    "case": "convert22",
+    "gc_cycles": 108,
+    "gc_pause_total_us": 909.543,
+    "iterations": 5000,
+    "ns_per_op": 48452.2412,
+    "variant": "go_gc",
+    "round": 3
+  },
+  {
+    "allocs_per_op": 748.0012,
+    "bytes_per_op": 61072.088,
+    "case": "convert22",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 5000,
+    "ns_per_op": 56415.223,
+    "variant": "go_off",
+    "round": 3
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.5128036,
+    "variant": "go_gc",
+    "round": 4
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.3857031,
+    "variant": "go_off",
+    "round": 4
+  },
+  {
+    "case": "class",
+    "iterations": 20000000,
+    "ns_per_op": 7.34174625,
+    "variant": "rust",
+    "round": 4
+  },
+  {
+    "allocs_per_op": 34.00602,
+    "bytes_per_op": 2776.44032,
+    "case": "convert1",
+    "gc_cycles": 49,
+    "gc_pause_total_us": 443.419,
+    "iterations": 50000,
+    "ns_per_op": 2170.04704,
+    "variant": "go_gc",
+    "round": 4
+  },
+  {
+    "allocs_per_op": 34.00012,
+    "bytes_per_op": 2776.0088,
+    "case": "convert1",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 50000,
+    "ns_per_op": 2988.50362,
+    "variant": "go_off",
+    "round": 4
+  },
+  {
+    "case": "convert1",
+    "iterations": 50000,
+    "ns_per_op": 6698.70976,
+    "variant": "rust",
+    "round": 4
+  },
+  {
+    "allocs_per_op": 748.132,
+    "bytes_per_op": 61081.68,
+    "case": "convert22",
+    "gc_cycles": 109,
+    "gc_pause_total_us": 797.044,
+    "iterations": 5000,
+    "ns_per_op": 49551.4558,
+    "variant": "go_gc",
+    "round": 4
+  },
+  {
+    "allocs_per_op": 748.0012,
+    "bytes_per_op": 61072.088,
+    "case": "convert22",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 5000,
+    "ns_per_op": 62681.7914,
+    "variant": "go_off",
+    "round": 4
+  },
+  {
+    "case": "convert22",
+    "iterations": 5000,
+    "ns_per_op": 170035.8888,
+    "variant": "rust",
+    "round": 4
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.53427845,
+    "variant": "go_off",
+    "round": 5
+  },
+  {
+    "case": "class",
+    "iterations": 20000000,
+    "ns_per_op": 8.5288078,
+    "variant": "rust",
+    "round": 5
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.31527705,
+    "variant": "go_gc",
+    "round": 5
+  },
+  {
+    "allocs_per_op": 34.00012,
+    "bytes_per_op": 2776.0088,
+    "case": "convert1",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 50000,
+    "ns_per_op": 2844.06628,
+    "variant": "go_off",
+    "round": 5
+  },
+  {
+    "case": "convert1",
+    "iterations": 50000,
+    "ns_per_op": 6952.04892,
+    "variant": "rust",
+    "round": 5
+  },
+  {
+    "allocs_per_op": 34.00602,
+    "bytes_per_op": 2776.44032,
+    "case": "convert1",
+    "gc_cycles": 49,
+    "gc_pause_total_us": 422.393,
+    "iterations": 50000,
+    "ns_per_op": 2407.17258,
+    "variant": "go_gc",
+    "round": 5
+  },
+  {
+    "allocs_per_op": 748.0012,
+    "bytes_per_op": 61072.088,
+    "case": "convert22",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 5000,
+    "ns_per_op": 61952.5132,
+    "variant": "go_off",
+    "round": 5
+  },
+  {
+    "case": "convert22",
+    "iterations": 5000,
+    "ns_per_op": 155806.7232,
+    "variant": "rust",
+    "round": 5
+  },
+  {
+    "allocs_per_op": 748.132,
+    "bytes_per_op": 61081.68,
+    "case": "convert22",
+    "gc_cycles": 108,
+    "gc_pause_total_us": 939.047,
+    "iterations": 5000,
+    "ns_per_op": 49737.5272,
+    "variant": "go_gc",
+    "round": 5
+  },
+  {
+    "case": "class",
+    "iterations": 20000000,
+    "ns_per_op": 7.4857935,
+    "variant": "rust",
+    "round": 6
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.32344075,
+    "variant": "go_gc",
+    "round": 6
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.1955415,
+    "variant": "go_off",
+    "round": 6
+  },
+  {
+    "case": "convert1",
+    "iterations": 50000,
+    "ns_per_op": 6337.01086,
+    "variant": "rust",
+    "round": 6
+  },
+  {
+    "allocs_per_op": 34.00602,
+    "bytes_per_op": 2776.44032,
+    "case": "convert1",
+    "gc_cycles": 49,
+    "gc_pause_total_us": 379.854,
+    "iterations": 50000,
+    "ns_per_op": 2176.46328,
+    "variant": "go_gc",
+    "round": 6
+  },
+  {
+    "allocs_per_op": 34.00012,
+    "bytes_per_op": 2776.0088,
+    "case": "convert1",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 50000,
+    "ns_per_op": 2751.14486,
+    "variant": "go_off",
+    "round": 6
+  },
+  {
+    "case": "convert22",
+    "iterations": 5000,
+    "ns_per_op": 159001.6896,
+    "variant": "rust",
+    "round": 6
+  },
+  {
+    "allocs_per_op": 748.132,
+    "bytes_per_op": 61081.68,
+    "case": "convert22",
+    "gc_cycles": 109,
+    "gc_pause_total_us": 836.154,
+    "iterations": 5000,
+    "ns_per_op": 50625.3084,
+    "variant": "go_gc",
+    "round": 6
+  },
+  {
+    "allocs_per_op": 748.0012,
+    "bytes_per_op": 61072.088,
+    "case": "convert22",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 5000,
+    "ns_per_op": 57121.4868,
+    "variant": "go_off",
+    "round": 6
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.47626805,
+    "variant": "go_gc",
+    "round": 7
+  },
+  {
+    "allocs_per_op": 0,
+    "bytes_per_op": 0,
+    "case": "class",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 20000000,
+    "ns_per_op": 2.44679175,
+    "variant": "go_off",
+    "round": 7
+  },
+  {
+    "case": "class",
+    "iterations": 20000000,
+    "ns_per_op": 7.7483909,
+    "variant": "rust",
+    "round": 7
+  },
+  {
+    "allocs_per_op": 34.00602,
+    "bytes_per_op": 2776.44032,
+    "case": "convert1",
+    "gc_cycles": 49,
+    "gc_pause_total_us": 417.944,
+    "iterations": 50000,
+    "ns_per_op": 2223.85818,
+    "variant": "go_gc",
+    "round": 7
+  },
+  {
+    "allocs_per_op": 34.00012,
+    "bytes_per_op": 2776.0088,
+    "case": "convert1",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 50000,
+    "ns_per_op": 2776.16048,
+    "variant": "go_off",
+    "round": 7
+  },
+  {
+    "case": "convert1",
+    "iterations": 50000,
+    "ns_per_op": 7597.52412,
+    "variant": "rust",
+    "round": 7
+  },
+  {
+    "allocs_per_op": 748.1322,
+    "bytes_per_op": 61081.6832,
+    "case": "convert22",
+    "gc_cycles": 108,
+    "gc_pause_total_us": 909.884,
+    "iterations": 5000,
+    "ns_per_op": 54764.021,
+    "variant": "go_gc",
+    "round": 7
+  },
+  {
+    "allocs_per_op": 748.0012,
+    "bytes_per_op": 61072.088,
+    "case": "convert22",
+    "gc_cycles": 0,
+    "gc_pause_total_us": 0,
+    "iterations": 5000,
+    "ns_per_op": 70244.3448,
+    "variant": "go_off",
+    "round": 7
+  },
+  {
+    "case": "convert22",
+    "iterations": 5000,
+    "ns_per_op": 175955.7,
+    "variant": "rust",
+    "round": 7
+  }
+]

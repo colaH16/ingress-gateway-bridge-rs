@@ -1,0 +1,17 @@
+{
+  "date": "2026-10-31",
+  "platform": "Linux x86_64",
+  "exposed_vcpus": 10,
+  "host_cpu_model": "Genuine Intel(R) 0000 (virtual CPU; model unavailable)",
+  "exclusive_host": false,
+  "micro_affinity": [
+    2
+  ],
+  "rust_version": "1.99.1",
+  "micro_rounds": 7,
+  "micro_go_gomaxprocs": 1,
+  "bridge_rust_source": "e387e619611f478a5bed8d35ceb55e5bf131a497",
+  "bridge_go_source": "41b4b395f37abd0b03ba858f1da6c32c02834813",
+  "production_requests": false,
+  "go_micro_version": "go1.25.5"
+}
